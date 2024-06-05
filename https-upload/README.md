@@ -178,4 +178,4 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
 #### Setting Parameters in Source Code
 1. Find `manifest.json` in `https-upload/app`.
 2. Change the `default` field of each parameter. Do NOT change parameter names.
-  - For more information on Axis Parameters check out the [https://axiscommunications.github.io/acap-documentation/docs/api/src/api/axparameter/html/index.html](AXParameter Documentation).
+  - For more information on Axis Parameters check out the [AXParameter Documentation](https://axiscommunications.github.io/acap-documentation/docs/api/src/api/axparameter/html/index.html).
