@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.7.0",
+  "acapPackageConf": {
+    "setup": {
+      "friendlyName": "HTTPS Upload",
+      "appName": "httpsUpload",
+      "vendor": "Parkspass",
+      "version": "1.0.1",
+      "runMode": "respawn",
+      "embeddedSdkVersion": "3.0"
+    },
+    "configuration": {
+      "paramConfig": [
+        {
+          "name": "ENDPOINT",
+          "default": "",
+          "type": "string"
+        },
+        {
+          "name": "AUTH",
+          "default": "",
+          "type": "string"
+        },
+        {
+          "name": "INTERVAL",
+          "default": "900",
+          "type": "int"
+        },
+        {
+          "name": "DAYS",
+          "default": "7",
+          "type": "int"
+        }
+      ]
+    }
+  }
+}
