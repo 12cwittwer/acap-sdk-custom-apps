@@ -179,3 +179,6 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
 1. Find `manifest.json` in `https-upload/app`.
 2. Change the `default` field of each parameter. Do NOT change parameter names.
   - For more information on Axis Parameters check out the [AXParameter Documentation](https://axiscommunications.github.io/acap-documentation/docs/api/src/api/axparameter/html/index.html).
+3. The app must be rebuilt and installed again. No need to uninstall the old app.
+
+#### Setting Parameters using VAPIX API
