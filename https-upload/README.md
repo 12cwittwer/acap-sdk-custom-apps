@@ -146,6 +146,7 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
 
 ### Setting Custom Parameters
   - ENDPOINT: https endpoint where the data will be sent.
+    - Default: Blank
   - AUTH: Authrization password which is attached to the header PARKSPLUS_AUTH (Specific to Parkspass).
   - INTERVAL: The frequency in seconds the data will be sent.
   - DAYS: Number of days worth of data being sent at one time to the endpoint.
