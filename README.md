@@ -5,8 +5,8 @@ Welcome to the repository for custom apps developed for Axis communication devic
 ## Table of Contents
 
 - [Overview](#overview)
-- [HTTPS Upload App](#https-upload-app)
-  - [Features](#features)
+- [Apps](#apps)
+  - [HTTPS Upload](#https-upload-app)
   - [Usage](#usage)
 - [License](#license)
 - [Contact](#contact)
@@ -17,23 +17,13 @@ This repository aims to provide custom applications designed to enhance the func
 
 - **HTTPS Upload App**: Sends data collected by the Speed Monitor App to a specified HTTPS endpoint.
 
-## HTTPS Upload App
+## Apps
 
-### Features
+### HTTPS Upload App
 
 - Sends the last specified number of days' worth of data collected by the Speed Monitor App.
 - Secure data transmission via HTTPS.
 - Configurable endpoint and data parameters.
-
-### Usage
-
-1. **Activate the App**
-
-    - Ensure the app is activated via the Axis device's web interface.
-
-2. **Data Upload**
-
-    - The app sends data from the SD card collected by the Speed Monitor App. Data from the last specified amount of days is sent every interval.
 
 ## License
 
