@@ -5,6 +5,7 @@ This README file explains how to build a the HTTPS Upload app and install it on 
 Together with this README file, you should be able to find a directory called app. That directory contains the "https-upload" application source code which can easily be compiled and run with the help of the tools and step by step below.
 
 ## Table of Contents
+- [Description](#description)
 - [Getting Started](#getting-started)
 - [Software Requirements](#software-requirements)
 - [How to Run The Code](#how-to-run-the-code)
@@ -13,6 +14,26 @@ Together with this README file, you should be able to find a directory called ap
       - [Accessing Device Web Interface](#steps-to-access-the-web-interface)
       - [Checking Output](#checking-output)
 - [Setting Parameters](#setting-custom-parameters)
+
+## Description
+
+The HTTPS Upload App performs the following functions:
+
+1. **Configuration Retrieval**:
+   - The app retrieves configuration parameters from the device, including the HTTPS endpoint, authentication token, upload interval, and the number of days of data to upload.
+
+2. **Data Extraction**:
+   - The app extracts recent entries from a local SQLite database (`statistics.db`) based on the number of days specified. It constructs a JSON object containing the relevant data entries.
+
+3. **Data Upload**:
+   - The app uses the `libcurl` library to upload the JSON data to the configured HTTPS endpoint. It includes the authentication token in the request headers.
+   - It handles and logs HTTP responses, including successful uploads and errors.
+
+4. **Error Handling**:
+   - The app logs errors using syslog and terminates the application if critical errors occur during configuration retrieval.
+
+5. **Continuous Operation**:
+   - The app runs in a loop, performing the data extraction and upload at intervals specified by the configuration parameter.
 
 ## Getting started
 
@@ -154,4 +175,4 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
   - DAYS: Number of days worth of data being sent at one time to the endpoint.
     - Default: 7
 
-Parameters can be set in the source code in the `manifest.json` in the **default** section or through the app settings on the Device Web Interface.
+Parameters can be set in the source code in the `manifest.json` in the **default** section or through the app settings on the Device Web Interface. The app must be stopped and started again for the new parameters to be used.
