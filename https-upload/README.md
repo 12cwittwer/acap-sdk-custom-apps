@@ -11,7 +11,7 @@ Together with this README file, you should be able to find a directory called ap
   - [Build the Application](#build-the-application)
   - [Install the App](#install-your-application)
       - [Accessing Device Web Interface](#steps-to-access-the-web-interface)
-      - [Expected Output](#the-expected-output)
+      - [Checking Output](#checking-output)
 - [Setting Parameters](#setting-custom-parameters)
 
 ## Getting started
@@ -136,7 +136,7 @@ https-upload
 _Goto your device web page above > Click on the tab **App** in the device GUI > Add **(+)** sign and browse to
 the newly built **httpsUpload_1_0_1_aarch64.eap** > Click **Install** > Run the application by enabling the **Start** switch_
 
-#### The expected output
+#### Checking output
 
 Application log can be found directly at:
 
