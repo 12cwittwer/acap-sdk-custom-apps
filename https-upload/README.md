@@ -175,4 +175,7 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
   - DAYS: Number of days worth of data being sent at one time to the endpoint.
     - Default: 7
 
-Parameters can be set in the source code in the `manifest.json` in the **default** section or through the app settings on the Device Web Interface. The app must be stopped and started again for the new parameters to be used.
+#### Setting Parameters in Source Code
+1. Find `manifest.json` in `https-upload/app`.
+2. Change the `default` field of each parameter. Do NOT change parameter names.
+  - For more information on Axis Parameters check out the [https://axiscommunications.github.io/acap-documentation/docs/api/src/api/axparameter/html/index.html](AXParameter Documentation).
