@@ -7,8 +7,6 @@ Welcome to the repository for custom apps developed for Axis communication devic
 - [Overview](#overview)
 - [HTTPS Upload App](#https-upload-app)
   - [Features](#features)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
   - [Usage](#usage)
 - [License](#license)
 - [Contact](#contact)
@@ -27,48 +25,6 @@ This repository aims to provide custom applications designed to enhance the func
 - Secure data transmission via HTTPS.
 - Configurable endpoint and data parameters.
 
-### Installation
-
-1. **Clone the Repository**
-
-    ```sh
-    git clone https://github.com/12cwittwer/axis-custom-apps.git
-    ```
-
-2. **Navigate to the App Directory**
-
-    ```sh
-    cd axis-custom-apps/https-upload-app
-    ```
-
-3. **Upload to Axis Device**
-
-   - Follow the standard procedure for uploading apps to your Axis device. This usually involves accessing the device's web interface and uploading the app package.
-
-### Configuration
-
-1. **Open Configuration File**
-
-    - Locate the `config.json` file in the app directory.
-
-2. **Edit Configuration Parameters**
-
-    - `endpoint`: The HTTPS endpoint to which data will be uploaded.
-    - `days`: Number of days' worth of data to be sent.
-    - Example:
-
-    ```json
-    {
-      "endpoint": "https://your-endpoint.com/upload",
-      "days": 7
-    }
-    ```
-
-3. **Save and Upload**
-
-    - Save the changes to `config.json`.
-    - Re-upload the app to the Axis device if necessary.
-
 ### Usage
 
 1. **Activate the App**
@@ -77,7 +33,7 @@ This repository aims to provide custom applications designed to enhance the func
 
 2. **Data Upload**
 
-    - The app will automatically send data to the configured HTTPS endpoint based on the specified number of days.
+    - The app sends data from the SD card collected by the Speed Monitor App. Data from the last specified amount of days is sent every interval.
 
 ## License
 
