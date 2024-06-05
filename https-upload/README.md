@@ -149,4 +149,5 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
   - AUTH: Authrization password which is attached to the header PARKSPLUS_AUTH (Specific to Parkspass).
   - INTERVAL: The frequency in seconds the data will be sent.
   - DAYS: Number of days worth of data being sent at one time to the endpoint.
+
 Parameters can be set in the source code in the `manifest.json` in the **default** section or through the app settings on the Device Web Interface.
