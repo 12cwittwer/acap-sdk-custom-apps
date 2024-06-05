@@ -145,4 +145,5 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
 ```
 
 ### Setting Custom Parameters
-Parameters can be set in the source code in the `manifest.json` or through the app settings on the Device Web Interface.
+Parameters can be set in the source code in the `manifest.json` in the **default** section or through the app settings on the Device Web Interface.
+  - Endpoint: 
