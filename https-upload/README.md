@@ -4,6 +4,16 @@ This README file explains how to build a the HTTPS Upload app and install it on 
 
 Together with this README file, you should be able to find a directory called app. That directory contains the "https-upload" application source code which can easily be compiled and run with the help of the tools and step by step below.
 
+## Table of Contents
+- [Getting Started](#getting-started)
+- [Software Requirements](#software-requirements)
+- [How to Run The Code](#how-to-run-the-code)
+  - [Build the Application](#build-the-application)
+  - [Install the App](#install-your-application)
+      - [Accessing Device Web Interface](#accessing-axis-communications-device-web-interface)
+      - [Expected Output] (#the-expected-output)
+- [Setting Parameters](#setting-custom-parameters)
+
 ## Getting started
 
 These instructions will guide you on how to execute the code. Below is the structure and scripts used in the example:
