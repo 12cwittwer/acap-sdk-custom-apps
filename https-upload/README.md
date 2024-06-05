@@ -10,7 +10,7 @@ Together with this README file, you should be able to find a directory called ap
 - [How to Run The Code](#how-to-run-the-code)
   - [Build the Application](#build-the-application)
   - [Install the App](#install-your-application)
-      - [Accessing Device Web Interface](#accessing-axis-communications-device-web-interface)
+      - [Accessing Device Web Interface](#steps-to-access-the-web-interface)
       - [Expected Output](#the-expected-output)
 - [Setting Parameters](#setting-custom-parameters)
 
@@ -104,16 +104,7 @@ https-upload
 
 #### Install your application
 
-##### Accessing Axis Communications Device Web Interface
-
-###### Prerequisites
-
-- An Axis Communications device (camera, encoder, etc.)
-- A computer connected to the same network as the device
-- The IP address of the Axis device
-- A web browser (Chrome, Firefox, Edge, etc.)
-
-###### Steps to Access the Web Interface
+##### Steps to Access the Web Interface
 
 1. **Find the IP Address of the Device**:
 
