@@ -11,7 +11,7 @@ Together with this README file, you should be able to find a directory called ap
   - [Build the Application](#build-the-application)
   - [Install the App](#install-your-application)
       - [Accessing Device Web Interface](#accessing-axis-communications-device-web-interface)
-      - [Expected Output] (#the-expected-output)
+      - [Expected Output](#the-expected-output)
 - [Setting Parameters](#setting-custom-parameters)
 
 ## Getting started
