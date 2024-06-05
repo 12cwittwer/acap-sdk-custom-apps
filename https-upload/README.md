@@ -1,6 +1,6 @@
 # HTTPS Upload App
 
-This README file explains how to build a the HTTPS Upload app and install it on your Axis Communications device.
+This README file explains how to build a the HTTPS Upload [ACAP SDK App](https://axiscommunications.github.io/acap-documentation/) and install it on your Axis Communications device.
 
 Together with this README file, you should be able to find a directory called app. That directory contains the "https-upload" application source code which can easily be compiled and run with the help of the tools and step by step below.
 
