@@ -55,7 +55,7 @@ The HTTPS Upload App performs the following functions:
 
 ## Getting started
 
-These instructions will guide you on how to execute the code. Below is the structure and scripts used in the example:
+These instructions will guide you on how to execute the code. Below is the structure and scripts used in the app:
 
 ```sh
 https-upload
