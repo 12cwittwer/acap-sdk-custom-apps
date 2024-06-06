@@ -41,15 +41,15 @@ The HTTPS Upload App performs the following functions:
 - **profile_id**: Scenario ID
 - **profile_trigger_id**: The number of times the scenario has been triggered while there is an active tracked object in the scenario
 - **classification**: Object classification (2: Unknown, 3: Human, 4: Vehicle)
-- **start_timestamp**:
-- **duration**:
-- **min_speed**:
-- **max_speed**:
-- **avg_speed**:
-- **enter_speed**:
-- **exit_speed**:
-- **enter_bearing**:
-- **exit_bearing**:
+- **start_timestamp**: Epoch time in microseconds
+- **duration**: Time the vehicle spent in the track area in milliseconds
+- **min_speed**: Minimum speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+- **max_speed**: Maximum speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+- **avg_speed**: Average speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+- **enter_speed**: Speed of the vehicle when it entered the track area. Can be converted to m/s by dividing speed by 280.
+- **exit_speed**: Speed of vehicle when it exited the track area. Can be converted to m/s by dividing speed by 280.
+- **enter_bearing**: Direction the vehicle is facing when it enters the track area in centiseconds.
+- **exit_bearing**: Direction the vehicle is facing when it exits the track area in centiseconds.
 - **flags**:
 
 ## Getting started
