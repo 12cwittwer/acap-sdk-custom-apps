@@ -35,6 +35,23 @@ The HTTPS Upload App performs the following functions:
 5. **Continuous Operation**:
    - The app runs in a loop, performing the data extraction and upload at intervals specified by the configuration parameter.
 
+## Exported Data
+- **internal_id**: ID of tracked object in the Speed Monitor database
+- **track_id**: ID of the tracked object
+- **profile_id**: Scenario ID
+- **profile_trigger_id**: The number of times the scenario has been triggered while there is an active tracked object in the scenario
+- **classification**: Object classification (2: Unknown, 3: Human, 4: Vehicle)
+- **start_timestamp**:
+- **duration**:
+- **min_speed**:
+- **max_speed**:
+- **avg_speed**:
+- **enter_speed**:
+- **exit_speed**:
+- **enter_bearing**:
+- **exit_bearing**:
+- **flags**:
+
 ## Getting started
 
 These instructions will guide you on how to execute the code. Below is the structure and scripts used in the example:
