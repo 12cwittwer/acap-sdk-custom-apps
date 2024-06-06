@@ -49,8 +49,8 @@ The HTTPS Upload App performs the following functions:
 - **avg_speed**: Average speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
 - **enter_speed**: Speed of the vehicle when it entered the track area. Can be converted to m/s by dividing speed by 280.
 - **exit_speed**: Speed of vehicle when it exited the track area. Can be converted to m/s by dividing speed by 280.
-- **enter_bearing**: Direction the vehicle is facing when it enters the track area in centiseconds.
-- **exit_bearing**: Direction the vehicle is facing when it exits the track area in centiseconds.
+- **enter_bearing**: Direction the vehicle is facing when it enters the track area in centidegrees.
+- **exit_bearing**: Direction the vehicle is facing when it exits the track area in centidegrees.
 - **flags**:
 
 ## Getting started
