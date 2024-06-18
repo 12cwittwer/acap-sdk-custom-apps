@@ -37,21 +37,24 @@ The HTTPS Upload App performs the following functions:
    - The app runs in a loop, performing the data extraction and upload at intervals specified by the configuration parameter.
 
 ## Exported Data
-- **internal_id**: ID of tracked object in the Speed Monitor database
-- **track_id**: ID of the tracked object
-- **profile_id**: Scenario ID
-- **profile_trigger_id**: The number of times the scenario has been triggered while there is an active tracked object in the scenario
-- **classification**: Object classification (2: Unknown, 3: Human, 4: Vehicle)
-- **start_timestamp**: Epoch time in microseconds
-- **duration**: Time the vehicle spent in the track area in milliseconds
-- **min_speed**: Minimum speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
-- **max_speed**: Maximum speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
-- **avg_speed**: Average speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
-- **enter_speed**: Speed of the vehicle when it entered the track area. Can be converted to m/s by dividing speed by 280.
-- **exit_speed**: Speed of vehicle when it exited the track area. Can be converted to m/s by dividing speed by 280.
-- **enter_bearing**: Direction the vehicle is facing when it enters the track area in centidegrees.
-- **exit_bearing**: Direction the vehicle is facing when it exits the track area in centidegrees.
-- **flags**:
+- **device_id**: User given ID of the Axis device.
+- **location**: User given text description of the device location.
+- **entries**: 
+  - **internal_id**: ID of tracked object in the Speed Monitor database
+  - **track_id**: ID of the tracked object
+  - **profile_id**: Scenario ID
+  - **profile_trigger_id**: The number of times the scenario has been triggered while there is an active tracked object in the scenario
+  - **classification**: Object classification (2: Unknown, 3: Human, 4: Vehicle)
+  - **start_timestamp**: Epoch time in microseconds
+  - **duration**: Time the vehicle spent in the track area in milliseconds
+  - **min_speed**: Minimum speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+  - **max_speed**: Maximum speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+  - **avg_speed**: Average speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+  - **enter_speed**: Speed of the vehicle when it entered the track area. Can be converted to m/s by dividing speed by 280.
+  - **exit_speed**: Speed of vehicle when it exited the track area. Can be converted to m/s by dividing speed by 280.
+  - **enter_bearing**: Direction the vehicle is facing when it enters the track area in centidegrees.
+  - **exit_bearing**: Direction the vehicle is facing when it exits the track area in centidegrees.
+  - **flags**:
 
 ## Getting started
 
