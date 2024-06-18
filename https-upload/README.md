@@ -186,11 +186,11 @@ https-upload
 
    - In the address bar of the web browser, type the IP address of your Axis device and press `Enter`. For example:
      ```
-     http://192.168.0.100
+     http://192.168.0.90
      ```
    - If your device is configured to use HTTPS, use:
      ```
-     https://192.168.0.100
+     https://192.168.0.90
      ```
 
 4. **Log In to the Device**:
