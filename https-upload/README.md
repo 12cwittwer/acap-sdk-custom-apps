@@ -192,6 +192,10 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
     - Default: 900
   - DAYS: Number of days worth of data being sent at one time to the endpoint.
     - Default: 7
+  - DEVICE: A user given ID of the device.
+    - Default: *blank*
+  - LOCATION: User description of device location
+    - Default: *blank* 
 
 #### Setting Parameters in Source Code
 1. Find `manifest.json` in `https-upload/app`.
