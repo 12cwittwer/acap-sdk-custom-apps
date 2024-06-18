@@ -39,7 +39,7 @@ The HTTPS Upload App performs the following functions:
 ## Exported Data
 - **device_id**: User given ID of the Axis device.
 - **location**: User given text description of the device location.
-- **entries**: 
+- **entries**: List of logged entries in from the Speed Monitor app.
   - **internal_id**: ID of tracked object in the Speed Monitor database
   - **track_id**: ID of the tracked object
   - **profile_id**: Scenario ID
@@ -60,23 +60,25 @@ The HTTPS Upload App performs the following functions:
 {
   device_id:
   location:
-  entries: {
-    internal_id:
-    track_id:
-    profile_id:
-    profile_trigger_id:
-    classification:
-    start_timestamp:
-    duration:
-    min_speed:
-    max_speed:
-    avg_speed:
-    enter_speed:
-    exit_speed:
-    enter_bearing:
-    exit_bearing:
-    flags:
-  }
+  entries: [
+      {
+        internal_id:
+        track_id:
+        profile_id:
+        profile_trigger_id:
+        classification:
+        start_timestamp:
+        duration:
+        min_speed:
+        max_speed:
+        avg_speed:
+        enter_speed:
+        exit_speed:
+        enter_bearing:
+        exit_bearing:
+        flags:
+      }
+  ]
 }
 ```
 
