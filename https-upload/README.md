@@ -61,23 +61,23 @@ The HTTPS Upload App performs the following functions:
   device_id:
   location:
   entries: [
-      {
-        internal_id:
-        track_id:
-        profile_id:
-        profile_trigger_id:
-        classification:
-        start_timestamp:
-        duration:
-        min_speed:
-        max_speed:
-        avg_speed:
-        enter_speed:
-        exit_speed:
-        enter_bearing:
-        exit_bearing:
-        flags:
-      }
+    {
+      internal_id:
+      track_id:
+      profile_id:
+      profile_trigger_id:
+      classification:
+      start_timestamp:
+      duration:
+      min_speed:
+      max_speed:
+      avg_speed:
+      enter_speed:
+      exit_speed:
+      enter_bearing:
+      exit_bearing:
+      flags:
+    }
   ]
 }
 ```
