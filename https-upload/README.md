@@ -56,6 +56,30 @@ The HTTPS Upload App performs the following functions:
   - **exit_bearing**: Direction the vehicle is facing when it exits the track area in centidegrees.
   - **flags**:
 
+```sh
+{
+  device_id:
+  location:
+  entries: {
+    internal_id:
+    track_id:
+    profile_id:
+    profile_trigger_id:
+    classification:
+    start_timestamp:
+    duration:
+    min_speed:
+    max_speed:
+    avg_speed:
+    enter_speed:
+    exit_speed:
+    enter_bearing:
+    exit_bearing:
+    flags:
+  }
+}
+```
+
 ## Getting started
 
 These instructions will guide you on how to execute the code. Below is the structure and scripts used in the app:
