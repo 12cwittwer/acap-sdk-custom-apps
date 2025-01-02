@@ -9,6 +9,25 @@
       "vendorUrl": "https://www.axis.com",
       "runMode": "respawn",
       "version": "1.0.0"
+    },
+    "configuration": {
+      "paramConfig": [
+        {
+          "name": "ENDPOINT",
+          "default": "",
+          "type": "string"
+        },
+        {
+          "name": "DEVICE",
+          "default": "",
+          "type": "string"
+        },
+        {
+          "name": "LOCATION",
+          "default": "",
+          "type": "string"
+        }
+      ]
     }
   }
 }

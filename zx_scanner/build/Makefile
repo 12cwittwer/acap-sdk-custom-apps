@@ -1,7 +1,7 @@
 TARGET = opencv_app
 OBJECTS = $(wildcard *.cpp)
 
-PKGS = gio-2.0 gio-unix-2.0 vdostream
+PKGS = gio-2.0 gio-unix-2.0 vdostream libcurl
 
 CXXFLAGS += -Os -pipe -std=c++17
 CXXFLAGS += $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --cflags-only-I $(PKGS))
