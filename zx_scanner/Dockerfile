@@ -97,6 +97,7 @@ RUN if [ "$ARCH" = armv7hf ]; then \
 # Copy the built library files to application directory
 #-------------------------------------------------------------------------------
 
+# !All library files are copied below!
 # WORKDIR /opt/app
 # COPY ./app .
 # RUN mkdir lib && \

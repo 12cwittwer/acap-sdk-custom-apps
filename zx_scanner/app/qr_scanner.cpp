@@ -23,19 +23,34 @@
 #include <syslog.h>
 #include <opencv2/imgcodecs.hpp>
 #include <curl/curl.h>
+#include <axsdk/axparameter.h>
 #include <glib.h>
 
 #include <ZXing/ReadBarcode.h>
 
 #include "imgprovider.h"
 
+#define APP_NAME "opencv_app"
+
 using namespace cv;
 
-static void uploadRecentEntries(const std::string& json_data);
+static void uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id);
+static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& device_id);
 
 int main(void) {
-    openlog("opencv_app", LOG_PID | LOG_CONS, LOG_USER);
+    openlog(APP_NAME, LOG_PID | LOG_CONS, LOG_USER);
     syslog(LOG_INFO, "Running OpenCV example with VDO as video source");
+
+    // Use std::string for easier string handling
+    std::string endpoint;
+    std::string auth;
+    std::string location;
+    std::string device_id;
+
+    if (!retrieveAxParameters(endpoint, auth, location, device_id)) {
+        return EXIT_FAILURE;
+    }
+
     ImgProvider_t* provider = NULL;
 
     // The desired width and height of the BGR frame
@@ -137,7 +152,7 @@ int main(void) {
         for (const auto& b : barcodes) {
             syslog(LOG_INFO, "%s: %s", ZXing::ToString(b.format()).c_str(), b.text().c_str());
             // Uncomment when QR scanner is working effectively
-            uploadRecentEntries(b.text());
+            uploadRecentEntries(b.text(), endpoint, auth, location, device_id);
         }
 
         returnFrame(provider, buf);
@@ -146,11 +161,7 @@ int main(void) {
 }
 
 
-static void uploadRecentEntries(const std::string& json_data) {
-    std::string endpoint = "https://5487-144-38-176-40.ngrok-free.app/messages";
-    std::string auth = "My authorization";
-    std::string location = "UTSAND";
-    std::string device_id = "SAND_SOUTH";
+static void uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id) {
 
     std::string json_body = "{"
         "\"location\": \"" + location + "\","
@@ -199,4 +210,65 @@ static void uploadRecentEntries(const std::string& json_data) {
     }
 
     curl_global_cleanup();
+}
+
+static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& device_id) {
+    GError* error = nullptr;
+
+    // Create AXParameter handle
+    AXParameter* handle = ax_parameter_new(APP_NAME, &error);
+    if (!handle) {
+        syslog(LOG_ERR, "Failed to create AXParameter: %s", error->message);
+        if (error) g_error_free(error); // Free error object
+        return false;
+    }
+
+    // Cleanup handle on exit
+    auto cleanup = [&]() { ax_parameter_free(handle); };
+    try {
+        gchar *param_value = NULL;
+
+        // Retrieve parameters
+        if (ax_parameter_get(handle, "ENDPOINT", &param_value, &error)) {
+            endpoint = param_value;
+            g_free(param_value);
+        } else {
+            syslog(LOG_ERR, "Failed to retrieve ENDPOINT");
+        }
+        if (ax_parameter_get(handle, "AUTH", &param_value, &error)) {
+            auth = param_value;
+            g_free(param_value);
+        } else {
+            syslog(LOG_ERR, "Failed to retrieve AUTH");
+        }
+        if (ax_parameter_get(handle, "LOCATION", &param_value, &error)) {
+            location = param_value;
+            g_free(param_value);
+        } else {
+            syslog(LOG_ERR, "Failed to retrieve LOCATION");
+        }
+        if (ax_parameter_get(handle, "DEVICE", &param_value, &error)) {
+            device_id = param_value;
+            g_free(param_value);
+        } else {
+            syslog(LOG_ERR, "Failed to retrieve DEVICE");
+        }
+
+        // Log parameters for debugging
+        syslog(LOG_INFO, "Endpoint: %s", endpoint.c_str());
+        syslog(LOG_INFO, "Auth: %s", auth.c_str());
+        syslog(LOG_INFO, "Location: %s", location.c_str());
+        syslog(LOG_INFO, "Device ID: %s", device_id.c_str());
+
+        if (error) g_error_free(error); // Free error object
+    } catch (const std::exception& ex) {
+        syslog(LOG_ERR, "%s", ex.what());
+        cleanup();
+        if (error) g_error_free(error); // Free error object
+        return false;
+    }
+
+    // Cleanup resources
+    cleanup();
+    return true;
 }

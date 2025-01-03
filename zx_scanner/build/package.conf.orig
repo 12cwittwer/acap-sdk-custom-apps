@@ -1,6 +1,6 @@
 PACKAGENAME="opencv_example"
 APPNAME="opencv_app"
-VENDOR="Axis Communications"
+VENDOR="Parkspass"
 REQEMBDEVVERSION="3.0"
 VENDORHOMEPAGELINK='<a href="https://www.axis.com" target="_blank">www.axis.com</a>'
 STARTMODE="respawn"

@@ -4,7 +4,7 @@
     "setup": {
       "friendlyName": "opencv_example",
       "appName": "opencv_app",
-      "vendor": "Axis Communications",
+      "vendor": "Parkspass",
       "embeddedSdkVersion": "3.0",
       "vendorUrl": "https://www.axis.com",
       "runMode": "respawn",
@@ -14,17 +14,22 @@
       "paramConfig": [
         {
           "name": "ENDPOINT",
-          "default": "",
+          "default": "https://cffa-144-38-9-14.ngrok-free.app/messages",
           "type": "string"
         },
         {
           "name": "DEVICE",
-          "default": "",
+          "default": "001",
           "type": "string"
         },
         {
           "name": "LOCATION",
-          "default": "",
+          "default": "UTSNOW",
+          "type": "string"
+        },
+        {
+          "name": "AUTH",
+          "default": "PARKSPLUS",
           "type": "string"
         }
       ]
