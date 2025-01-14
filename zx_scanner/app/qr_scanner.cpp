@@ -24,34 +24,45 @@
 #include <opencv2/imgcodecs.hpp>
 #include <curl/curl.h>
 #include <axsdk/axparameter.h>
+#include <axsdk/axevent.h>
+#include <glib-object.h>
 #include <glib.h>
 
 #include <ZXing/ReadBarcode.h>
-
+#include "send_event.h"
 #include "imgprovider.h"
 
 #define APP_NAME "opencv_app"
 
 using namespace cv;
 
-static void uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id);
+static AXEventHandler* event_handler = nullptr;
+static guint qr_event_id = 0;
+static ImgProvider_t* provider = nullptr;
+static Mat bgr_mat;
+static Mat nv12_mat;
+static Mat grey_mat;
+static cv::Rect roi;
+static std::string endpoint;
+static std::string auth;
+static std::string location;
+static std::string device_id;
+
+static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id);
 static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& device_id);
+static gboolean process_frame(AppData* app_data);
 
 int main(void) {
+    GMainLoop* main_loop = NULL;
+
+    // Open app logs
     openlog(APP_NAME, LOG_PID | LOG_CONS, LOG_USER);
     syslog(LOG_INFO, "Running OpenCV example with VDO as video source");
 
-    // Use std::string for easier string handling
-    std::string endpoint;
-    std::string auth;
-    std::string location;
-    std::string device_id;
-
+    // Retrieve the AxParameters from manifest file
     if (!retrieveAxParameters(endpoint, auth, location, device_id)) {
         return EXIT_FAILURE;
     }
-
-    ImgProvider_t* provider = NULL;
 
     // The desired width and height of the BGR frame
     unsigned int width  = 1280;
@@ -84,84 +95,99 @@ int main(void) {
 
     // Create OpenCV Mats for the camera frame (nv12), the converted frame (bgr)
     // and the foreground frame that is outputted by the background subtractor
-    Mat bgr_mat  = Mat(streamHeight, streamWidth, CV_8UC3);
-    Mat nv12_mat = Mat(streamHeight  * 3 / 2, streamWidth, CV_8UC1);
-    Mat grey_mat;
+    bgr_mat  = Mat(streamHeight, streamWidth, CV_8UC3);
+    nv12_mat = Mat(streamHeight  * 3 / 2, streamWidth, CV_8UC1);
 
     // Crop area being scanned
-    cv::Rect roi(streamWidth * 1 / 3, streamHeight * 1 / 4, streamWidth * 1 / 3, streamHeight * 1 / 2);
+    roi = cv::Rect(streamWidth * 1 / 3, streamHeight * 1 / 4, streamWidth * 1 / 3, streamHeight * 1 / 2);
 
-    while (true) {
-        // Get the latest NV12 image frame from VDO using the imageprovider
-        VdoBuffer* buf = getLastFrameBlocking(provider);
-        if (!buf) {
-            syslog(LOG_INFO, "No more frames available, exiting");
-            exit(0);
-        }
+    // Set up event
+    AppData* app_data = create_event();
+    syslog(LOG_INFO, "New event created with ID: %d", app_data->event_id);
 
-        nv12_mat.data = static_cast<uint8_t*>(vdo_buffer_get_data(buf));
+    g_timeout_add(100, (GSourceFunc)process_frame, app_data);
+    main_loop = g_main_loop_new(NULL, FALSE);
+    g_main_loop_run(main_loop);
 
-        // imwrite("nv12.png", nv12_mat);
-        // syslog(LOG_INFO, "nv12 image saved to nv12.png");
+    event_cleanup();
+    destroyImgProvider(provider);
 
-        // Convert the NV12 data to BGR
-        cvtColor(nv12_mat, bgr_mat, COLOR_YUV2BGR_NV12, 3);
-
-        // imwrite("bgr_frame.png", bgr_mat);
-        // syslog(LOG_INFO, "BGR image saved to bgr_frame.png");
-
-        cvtColor(bgr_mat, grey_mat, COLOR_BGR2GRAY);
-
-        // imwrite("greyscale_img.png", grey_mat);
-        // syslog(LOG_INFO, "Greyscale image saved to greyscale_img.png");
-
-        cv::Mat cropped = grey_mat(roi);
-
-        // Resize the cropped image to enhance resolution
-        cv::Mat resized;
-        cv::resize(cropped, resized, cv::Size(), 2.0, 2.0, cv::INTER_CUBIC); // 2x enlargement
-
-        cv::Mat result = resized.clone();
-
-        // Increase black and white contrast
-        cv::Mat high_contrast;
-        resized.convertTo(high_contrast, -1, 2.5, -200); // Increase contrast
-
-        result = high_contrast; // Inserted to allow removal of thresholding. Needs to be cleaned up later.
-
-        // Set all pixels with a brightness greater than 100 to white
-        // Thresholding does not work properly in low light environments
-        // double threshold_value = 100;
-        // for (int y = 0; y < high_contrast.rows; ++y) {
-        //     for (int x = 0; x < high_contrast.cols; ++x) {
-        //         if (high_contrast.at<uchar>(y, x) >= threshold_value) {
-        //             result.at<uchar>(y, x) = 255; // Set pixel to white
-        //         } else if (high_contrast.at<uchar>(y,x) < threshold_value) {
-        //             result.at<uchar>(y,x) = 0; // Set pixel to black
-        //         }
-        //     }
-        // }
-
-        imwrite("altered_img.png", result);
-        // syslog(LOG_INFO, "Final photo saved to altered_img.png");
-
-        auto image = ZXing::ImageView(result.data, result.cols, result.rows, ZXing::ImageFormat::Lum);
-        auto options = ZXing::ReaderOptions().setFormats(ZXing::BarcodeFormat::QRCode);
-        auto barcodes = ZXing::ReadBarcodes(image, options);
-
-        for (const auto& b : barcodes) {
-            syslog(LOG_INFO, "%s: %s", ZXing::ToString(b.format()).c_str(), b.text().c_str());
-            // Uncomment when QR scanner is working effectively
-            uploadRecentEntries(b.text(), endpoint, auth, location, device_id);
-        }
-
-        returnFrame(provider, buf);
-    }
+    g_main_loop_unref(main_loop);
     return EXIT_SUCCESS;
 }
 
+static gboolean process_frame(AppData* app_data) {
+    // Get the latest NV12 image frame from VDO using the imageprovider
+    VdoBuffer* buf = getLastFrameBlocking(provider);
+    if (!buf) {
+        syslog(LOG_INFO, "No more frames available, exiting");
+        return FALSE;
+    }
 
-static void uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id) {
+    nv12_mat.data = static_cast<uint8_t*>(vdo_buffer_get_data(buf));
+
+    // imwrite("nv12.png", nv12_mat);
+    // syslog(LOG_INFO, "nv12 image saved to nv12.png");
+
+    // Convert the NV12 data to BGR
+    cvtColor(nv12_mat, bgr_mat, COLOR_YUV2BGR_NV12, 3);
+
+    // imwrite("bgr_frame.png", bgr_mat);
+    // syslog(LOG_INFO, "BGR image saved to bgr_frame.png");
+
+    cvtColor(bgr_mat, grey_mat, COLOR_BGR2GRAY);
+
+    // imwrite("greyscale_img.png", grey_mat);
+    // syslog(LOG_INFO, "Greyscale image saved to greyscale_img.png");
+
+    cv::Mat cropped = grey_mat(roi);
+
+    // Resize the cropped image to enhance resolution
+    cv::Mat resized;
+    cv::resize(cropped, resized, cv::Size(), 2.0, 2.0, cv::INTER_CUBIC); // 2x enlargement
+
+    cv::Mat result = resized.clone();
+
+    // Increase black and white contrast
+    cv::Mat high_contrast;
+    resized.convertTo(high_contrast, -1, 2.5, -200); // Increase contrast
+
+    result = high_contrast; // Inserted to allow removal of thresholding. Needs to be cleaned up later.
+
+    // Set all pixels with a brightness greater than 100 to white
+    // Thresholding does not work properly in low light environments
+    // double threshold_value = 100;
+    // for (int y = 0; y < high_contrast.rows; ++y) {
+    //     for (int x = 0; x < high_contrast.cols; ++x) {
+    //         if (high_contrast.at<uchar>(y, x) >= threshold_value) {
+    //             result.at<uchar>(y, x) = 255; // Set pixel to white
+    //         } else if (high_contrast.at<uchar>(y,x) < threshold_value) {
+    //             result.at<uchar>(y,x) = 0; // Set pixel to black
+    //         }
+    //     }
+    // }
+
+    imwrite("altered_img.png", result);
+    // syslog(LOG_INFO, "Final photo saved to altered_img.png");
+
+    auto image = ZXing::ImageView(result.data, result.cols, result.rows, ZXing::ImageFormat::Lum);
+    auto options = ZXing::ReaderOptions().setFormats(ZXing::BarcodeFormat::QRCode);
+    auto barcodes = ZXing::ReadBarcodes(image, options);
+
+    for (const auto& b : barcodes) {
+        syslog(LOG_INFO, "%s: %s", ZXing::ToString(b.format()).c_str(), b.text().c_str());
+        // Uncomment when QR scanner is working effectively
+        if(uploadRecentEntries(b.text(), endpoint, auth, location, device_id)) {
+            send_event(app_data);
+        }
+    }
+
+    returnFrame(provider, buf);
+    return TRUE;
+}
+
+
+static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id) {
 
     std::string json_body = "{"
         "\"location\": \"" + location + "\","
@@ -198,6 +224,10 @@ static void uploadRecentEntries(const std::string& json_data, const std::string&
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
             if (http_code == 200) {
                 syslog(LOG_INFO, "Data uploaded succesfully");
+                curl_slist_free_all(headers);
+                curl_easy_cleanup(curl);
+                curl_global_cleanup();
+                return true;
             } else {
                 syslog(LOG_INFO, "Data was not successfully uploaded");
             }
@@ -210,6 +240,7 @@ static void uploadRecentEntries(const std::string& json_data, const std::string&
     }
 
     curl_global_cleanup();
+    return false;
 }
 
 static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& device_id) {
@@ -269,6 +300,5 @@ static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::
     }
 
     // Cleanup resources
-    cleanup();
     return true;
 }

@@ -156,8 +156,8 @@ RUN if [ "$ARCH" = armv7hf ]; then \
 # Copy the built ZXing library files to application directory
 #-------------------------------------------------------------------------------
 
+COPY ./app /opt/app/
 WORKDIR /opt/app
-COPY ./app .
 RUN mkdir lib && \
     cp -P ${OPENCV_BUILD_DIR}/lib/lib*.so* ./lib/ && \
     cp -P ${ZXING_BUILD_DIR}/core/libZXing* ./lib/
@@ -165,7 +165,5 @@ RUN mkdir lib && \
 #-------------------------------------------------------------------------------
 # Finally build the ACAP application
 #-------------------------------------------------------------------------------
-
-RUN ls -l /opt/axis/acapsdk/sysroots/aarch64/usr/lib
 
 RUN . /opt/axis/acapsdk/environment-setup* && acap-build .
