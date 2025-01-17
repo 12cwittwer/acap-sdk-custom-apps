@@ -47,10 +47,12 @@ static std::string endpoint;
 static std::string auth;
 static std::string location;
 static std::string device_id;
+static gboolean delay_in_progress = FALSE;
 
 static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id);
 static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& device_id);
 static gboolean process_frame(AppData* app_data);
+static gboolean reset_delay_flag(gpointer user_data);
 
 int main(void) {
     GMainLoop* main_loop = NULL;
@@ -117,6 +119,9 @@ int main(void) {
 }
 
 static gboolean process_frame(AppData* app_data) {
+    if (delay_in_progress) {
+        return TRUE;
+    }
     // Get the latest NV12 image frame from VDO using the imageprovider
     VdoBuffer* buf = getLastFrameBlocking(provider);
     if (!buf) {
@@ -179,6 +184,9 @@ static gboolean process_frame(AppData* app_data) {
         // Uncomment when QR scanner is working effectively
         if(uploadRecentEntries(b.text(), endpoint, auth, location, device_id)) {
             send_event(app_data);
+
+            delay_in_progress = TRUE;
+            g_timeout_add(3000, reset_delay_flag, NULL);
         }
     }
 
@@ -301,4 +309,9 @@ static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::
 
     // Cleanup resources
     return true;
+}
+
+static gboolean reset_delay_flag(gpointer user_data) {
+    delay_in_progress = FALSE;
+    return FALSE;
 }
