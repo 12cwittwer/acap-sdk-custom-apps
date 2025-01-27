@@ -1,4 +1,4 @@
-TARGET = opencv_app
+TARGET = parkspass_qr_scanner
 C_SOURCES = send_event.c
 CPP_SOURCES = $(wildcard *.cpp)
 OBJECTS = $(C_SOURCES:.c=.o) $(CPP_SOURCES:.cpp=.o) 

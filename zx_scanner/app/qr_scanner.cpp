@@ -32,7 +32,7 @@
 #include "send_event.h"
 #include "imgprovider.h"
 
-#define APP_NAME "opencv_app"
+#define APP_NAME "parkspass_qr_scanner"
 
 using namespace cv;
 
