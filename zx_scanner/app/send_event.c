@@ -44,17 +44,17 @@ gboolean send_event(AppData* send_data) {
     AXEventKeyValueSet* key_value_set = NULL;
     AXEvent* event                    = NULL;
 
-    syslog(LOG_INFO, "Sending event Event Handler: %p with ID: %u and Value: %lf", send_data->event_handler, send_data->event_id, send_data->value);
+    syslog(LOG_INFO, "Sending event Event Handler: %p with ID: %u and Value: %d", send_data->event_handler, send_data->event_id, send_data->value);
 
     key_value_set = ax_event_key_value_set_new();
 
     // Add the variable elements of the event to the set
-    syslog(LOG_INFO, "Add value: %lf", send_data->value);
+    syslog(LOG_INFO, "Add value: %d", send_data->value);
     if (!ax_event_key_value_set_add_key_value(key_value_set,
-                                         "Value",
+                                         "SuccessValue",
                                          "tnsaxis",
                                          &send_data->value,
-                                         AX_VALUE_TYPE_DOUBLE,
+                                         AX_VALUE_TYPE_INT,
                                          NULL)) {
         syslog(LOG_ERR, "Key value set was not made");
     }
@@ -74,12 +74,9 @@ gboolean send_event(AppData* send_data) {
         syslog(LOG_ERR, "Failed to send event to handler");
     }
 
-    syslog(LOG_INFO, "Send stateful event with value: %lf", send_data->value);
+    syslog(LOG_INFO, "Send stateful event with value: %d", send_data->value);
 
     ax_event_free(event);
-
-    // Toggle value
-    send_data->value = send_data->value >= 100 ? 0 : send_data->value + 10;
 
     // Returning TRUE keeps the timer going
     return TRUE;
@@ -95,7 +92,7 @@ gboolean send_event(AppData* send_data) {
  * param declaration Event declaration id.
  * param value Start value of the event.
  */
-static void declaration_complete(guint declaration, gdouble* value) {
+static void declaration_complete(guint declaration, gint* value) {
     syslog(LOG_INFO, "Declaration complete for: %d", declaration);
 
     // app_data->value = *value;
@@ -125,7 +122,7 @@ static void declaration_complete(guint declaration, gdouble* value) {
  * param event_handler Event handler.
  * return declaration id as integer.
  */
-static guint setup_declaration(AXEventHandler* event_handler, gdouble* start_value) {
+static guint setup_declaration(AXEventHandler* event_handler, gint* start_value) {
     AXEventKeyValueSet* key_value_set = NULL;
     guint declaration                 = 0;
     guint token                       = 0;
@@ -148,8 +145,8 @@ static guint setup_declaration(AXEventHandler* event_handler, gdouble* start_val
                                         AX_VALUE_TYPE_INT, NULL)) {
                                             syslog(LOG_ERR, "Failed to add a key value set");
                                         }
-    if (!ax_event_key_value_set_add_key_value(key_value_set, "Value", "tnsaxis", start_value,
-                                        AX_VALUE_TYPE_DOUBLE, NULL)) {
+    if (!ax_event_key_value_set_add_key_value(key_value_set, "SuccessValue", "tnsaxis", start_value,
+                                        AX_VALUE_TYPE_INT, NULL)) {
                                             syslog(LOG_ERR, "Failed to add a key value set");
                                         }
     if (!ax_event_key_value_set_mark_as_source(key_value_set, "Token", "tnsaxis", NULL)) {
@@ -162,11 +159,11 @@ static guint setup_declaration(AXEventHandler* event_handler, gdouble* start_val
                                                     NULL)) {
         syslog(LOG_ERR, "Failed to mark as user defined");
     }
-    if (!ax_event_key_value_set_mark_as_data(key_value_set, "Value", "tnsaxis", NULL)) {
+    if (!ax_event_key_value_set_mark_as_data(key_value_set, "SuccessValue", "tnsaxis", NULL)) {
         syslog(LOG_ERR, "failed to mark as data");
     }
     if (!ax_event_key_value_set_mark_as_user_defined(key_value_set,
-                                                    "Value",
+                                                    "SuccessValue",
                                                     "tnsaxis",
                                                     "wstype:xs:float",
                                                     NULL)) {
@@ -202,7 +199,7 @@ void event_cleanup() {
  * brief Main function which sends an event.
  */
 AppData* create_event(void) {
-    gdouble start_value  = 0.0;
+    guint start_value  = 0;
 
     app_data = calloc(1, sizeof(AppData));
     if (!app_data) {
@@ -217,7 +214,7 @@ AppData* create_event(void) {
         event_cleanup();
         return NULL;
     }
-    syslog(LOG_ERR, "Event handler created at: %p", app_data->event_handler);
+    syslog(LOG_INFO, "Event handler created at: %p", app_data->event_handler);
     app_data->event_id      = setup_declaration(app_data->event_handler, &start_value);
     if (!app_data->event_id) {
         syslog(LOG_ERR, "New Event Failed to Create");

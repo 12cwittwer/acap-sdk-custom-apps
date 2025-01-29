@@ -59,7 +59,7 @@ int main(void) {
 
     // Open app logs
     openlog(APP_NAME, LOG_PID | LOG_CONS, LOG_USER);
-    syslog(LOG_INFO, "Running OpenCV example with VDO as video source");
+    syslog(LOG_INFO, "Running %s example with VDO as video source", APP_NAME);
 
     // Retrieve the AxParameters from manifest file
     if (!retrieveAxParameters(endpoint, auth, location, device_id)) {
@@ -183,6 +183,7 @@ static gboolean process_frame(AppData* app_data) {
         syslog(LOG_INFO, "%s: %s", ZXing::ToString(b.format()).c_str(), b.text().c_str());
         // Uncomment when QR scanner is working effectively
         if(uploadRecentEntries(b.text(), endpoint, auth, location, device_id)) {
+            app_data->value = 1;
             send_event(app_data);
 
             delay_in_progress = TRUE;

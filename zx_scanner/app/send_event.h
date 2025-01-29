@@ -14,7 +14,7 @@ extern "C" {
 typedef struct {
     AXEventHandler* event_handler;
     guint event_id;
-    gdouble value;
+    gint value;
 } AppData;
 
 // Function declarations
