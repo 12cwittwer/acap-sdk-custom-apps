@@ -14,7 +14,7 @@
       "paramConfig": [
         {
           "name": "ENDPOINT",
-          "default": "https://3249-144-38-9-14.ngrok-free.app/messages",
+          "default": "https://baa5-144-38-172-173.ngrok-free.app/messages",
           "type": "string"
         },
         {

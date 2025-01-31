@@ -188,6 +188,12 @@ static gboolean process_frame(AppData* app_data) {
 
             delay_in_progress = TRUE;
             g_timeout_add(3000, reset_delay_flag, NULL);
+        } else {
+            app_data->value = 2;
+            send_event(app_data);
+
+            delay_in_progress = TRUE;
+            g_timeout_add(3000, reset_delay_flag, NULL);
         }
     }
 
