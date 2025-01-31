@@ -208,6 +208,9 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=parkspass_qr_scanne
 
   **Subscribing to the Event**
   On the Axis Communications device Web Interface:
-    - Go to `System > Events`
-    - Under `Rules` click `+ Add Rule`
-    - In the `Condition` section, click `Select a Condition` and choose `BarcodeScanned`
+  
+    - Go to `System > Events`.
+    
+    - Under `Rules` click `+ Add Rule`.
+  
+    - In the `Condition` section, click `Select a Condition` and choose `BarcodeScanned`.
