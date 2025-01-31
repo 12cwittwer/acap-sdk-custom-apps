@@ -203,8 +203,10 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=parkspass_qr_scanne
 ## Event
   This application takes advantage of the built in AXEvent API. Upon each successfull scan of an QR Code, the application will send an event with a SuccessValue field.
   SuccessValue will have two values based on the server response:
-    - 1: 200 response code. In our use case, a valid passes.
-    - 2: Any other response code. In our case, a bad pass or no communication to the server.
+
+  - 1: 200 response code. In our use case, a valid passes.
+  
+  - 2: Any other response code. In our case, a bad pass or no communication to the server.
 
   **Subscribing to the Event**
   On the Axis Communications device Web Interface:
