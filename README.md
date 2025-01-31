@@ -7,6 +7,7 @@ Welcome to the repository for custom apps developed for Axis communication devic
 - [Overview](#overview)
 - [Apps](#apps)
   - [HTTPS Upload](#https-upload-app)
+  - [Parkspass QR Scanner](#parkspass-qr-scanner)
 - [License](#license)
 - [Contact](#contact)
 
@@ -23,6 +24,13 @@ This repository aims to provide custom applications designed to enhance the func
 - Sends the last specified number of days' worth of data collected by the Speed Monitor App.
 - Secure data transmission via HTTPS.
 - Configurable endpoint and data parameters.
+
+### Parkspass QR Scanner App
+
+- Repeatedly checks frame from a camera for QR Codes.
+- Upon successfull scan:
+    - QR code data is uploaded to an endpoint.
+    - An AXEvent is sent.
 
 ## License
 
