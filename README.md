@@ -19,7 +19,7 @@ This repository aims to provide custom applications designed to enhance the func
 
 ## Apps
 
-### HTTPS Upload App
+### [HTTPS Upload App](https://github.com/12cwittwer/acap-sdk-custom-apps/tree/main/https-upload)
 
 - Sends the last specified number of days' worth of data collected by the Speed Monitor App.
 - Secure data transmission via HTTPS.
