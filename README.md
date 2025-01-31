@@ -25,7 +25,7 @@ This repository aims to provide custom applications designed to enhance the func
 - Secure data transmission via HTTPS.
 - Configurable endpoint and data parameters.
 
-### Parkspass QR Scanner App
+### [Parkspass QR Scanner](https://github.com/12cwittwer/acap-sdk-custom-apps/tree/main/zx_scanner) App
 
 - Repeatedly checks frame from a camera for QR Codes.
 - Upon successfull scan:
