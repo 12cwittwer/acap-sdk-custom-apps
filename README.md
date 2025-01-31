@@ -38,4 +38,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any questions or support, please contact [christian.wittwer@parkspass.org](mailto:christian.wittwer@parkspass.org).
+For any questions or support, please contact Christian Wittwer at [christian.wittwer@parkspass.org](mailto:christian.wittwer@parkspass.org).
