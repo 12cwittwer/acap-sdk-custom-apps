@@ -14,7 +14,7 @@ Together with this README file, you should be able to find a directory called ap
   - [Install the App](#install-your-application)
       - [Accessing Device Web Interface](#steps-to-access-the-web-interface)
       - [Checking Output](#checking-output)
-- [Setting Parameters](#setting-custom-parameters)
+- [Event](#event)
 
 ## Description
 
@@ -200,3 +200,14 @@ Application log can be found directly at:
 ```sh
 http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=parkspass_qr_scanner
 ```
+## Event
+  This application takes advantage of the built in AXEvent API. Upon each successfull scan of an QR Code, the application will send an event with a SuccessValue field.
+  SuccessValue will have two values based on the server response:
+    - 1: 200 response code. In our use case, a valid passes.
+    - 2: Any other response code. In our case, a bad pass or no communication to the server.
+
+  **Subscribing to the Event**
+  On the Axis Communications device Web Interface:
+    - Go to `System > Events`
+    - Under `Rules` click `+ Add Rule`
+    - In the `Condition` section, click `Select a Condition` and choose `BarcodeScanned`
