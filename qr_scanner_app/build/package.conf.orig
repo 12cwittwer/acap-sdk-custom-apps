@@ -1,9 +1,0 @@
-PACKAGENAME="opencv_example"
-APPNAME="opencv_app"
-VENDOR="Axis Communications"
-REQEMBDEVVERSION="3.0"
-VENDORHOMEPAGELINK='<a href="https://www.axis.com" target="_blank">www.axis.com</a>'
-STARTMODE="respawn"
-APPMAJORVERSION="1"
-APPMINORVERSION="0"
-APPMICROVERSION="0"
