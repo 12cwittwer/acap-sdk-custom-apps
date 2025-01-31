@@ -1,11 +1,12 @@
 # HTTPS Upload App
 
-This README file explains how to build a the HTTPS Upload app and install it on your Axis Communications device.
+This README file explains how to build a the HTTPS Upload [ACAP SDK App](https://axiscommunications.github.io/acap-documentation/) and install it on your Axis Communications device.
 
 Together with this README file, you should be able to find a directory called app. That directory contains the "https-upload" application source code which can easily be compiled and run with the help of the tools and step by step below.
 
 ## Table of Contents
 - [Description](#description)
+- [Exported Data](#exported-data)
 - [Getting Started](#getting-started)
 - [Software Requirements](#software-requirements)
 - [How to Run The Code](#how-to-run-the-code)
@@ -35,9 +36,55 @@ The HTTPS Upload App performs the following functions:
 5. **Continuous Operation**:
    - The app runs in a loop, performing the data extraction and upload at intervals specified by the configuration parameter.
 
+## Exported Data
+- **device_id**: User given ID of the Axis device.
+- **location**: User given text description of the device location.
+- **entries**: List of logged entries in from the Speed Monitor app.
+  - **internal_id**: ID of tracked object in the Speed Monitor database
+  - **track_id**: ID of the tracked object
+  - **profile_id**: Scenario ID
+  - **profile_trigger_id**: The number of times the scenario has been triggered while there is an active tracked object in the scenario
+  - **classification**: Object classification (2: Unknown, 3: Human, 4: Vehicle)
+  - **start_timestamp**: Epoch time in microseconds
+  - **duration**: Time the vehicle spent in the track area in milliseconds
+  - **min_speed**: Minimum speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+  - **max_speed**: Maximum speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+  - **avg_speed**: Average speed of vehicle while in the track area. Can be converted to m/s by dividing speed by 280.
+  - **enter_speed**: Speed of the vehicle when it entered the track area. Can be converted to m/s by dividing speed by 280.
+  - **exit_speed**: Speed of vehicle when it exited the track area. Can be converted to m/s by dividing speed by 280.
+  - **enter_bearing**: Direction the vehicle is facing when it enters the track area in centidegrees.
+  - **exit_bearing**: Direction the vehicle is facing when it exits the track area in centidegrees.
+  - **flags**:
+
+```sh
+{
+  device_id:
+  location:
+  entries: [
+    {
+      internal_id:
+      track_id:
+      profile_id:
+      profile_trigger_id:
+      classification:
+      start_timestamp:
+      duration:
+      min_speed:
+      max_speed:
+      avg_speed:
+      enter_speed:
+      exit_speed:
+      enter_bearing:
+      exit_bearing:
+      flags:
+    }
+  ]
+}
+```
+
 ## Getting started
 
-These instructions will guide you on how to execute the code. Below is the structure and scripts used in the example:
+These instructions will guide you on how to execute the code. Below is the structure and scripts used in the app:
 
 ```sh
 https-upload
@@ -139,11 +186,11 @@ https-upload
 
    - In the address bar of the web browser, type the IP address of your Axis device and press `Enter`. For example:
      ```
-     http://192.168.0.100
+     http://192.168.0.90
      ```
    - If your device is configured to use HTTPS, use:
      ```
-     https://192.168.0.100
+     https://192.168.0.90
      ```
 
 4. **Log In to the Device**:
@@ -174,5 +221,15 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=httpsUpload
     - Default: 900
   - DAYS: Number of days worth of data being sent at one time to the endpoint.
     - Default: 7
+  - DEVICE: A user given ID of the device.
+    - Default: *blank*
+  - LOCATION: User description of device location
+    - Default: *blank* 
 
-Parameters can be set in the source code in the `manifest.json` in the **default** section or through the app settings on the Device Web Interface. The app must be stopped and started again for the new parameters to be used.
+#### Setting Parameters in Source Code
+1. Find `manifest.json` in `https-upload/app`.
+2. Change the `default` field of each parameter. Do NOT change parameter names.
+  - For more information on Axis Parameters customization check out the [AXParameter Documentation](https://axiscommunications.github.io/acap-documentation/docs/api/src/api/axparameter/html/index.html).
+3. The app must be rebuilt and installed again. No need to uninstall the old app.
+
+#### Setting Parameters using VAPIX API
