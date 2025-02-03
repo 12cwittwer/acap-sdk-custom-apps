@@ -46,11 +46,11 @@ static cv::Rect roi;
 static std::string endpoint;
 static std::string auth;
 static std::string location;
-static std::string device_id;
+static std::string entrance;
 static gboolean delay_in_progress = FALSE;
 
-static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id);
-static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& device_id);
+static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string entrance);
+static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& entrance);
 static gboolean process_frame(AppData* app_data);
 static gboolean reset_delay_flag(gpointer user_data);
 
@@ -62,7 +62,7 @@ int main(void) {
     syslog(LOG_INFO, "Running %s example with VDO as video source", APP_NAME);
 
     // Retrieve the AxParameters from manifest file
-    if (!retrieveAxParameters(endpoint, auth, location, device_id)) {
+    if (!retrieveAxParameters(endpoint, auth, location, entrance)) {
         return EXIT_FAILURE;
     }
 
@@ -182,7 +182,7 @@ static gboolean process_frame(AppData* app_data) {
     for (const auto& b : barcodes) {
         syslog(LOG_INFO, "%s: %s", ZXing::ToString(b.format()).c_str(), b.text().c_str());
         // Uncomment when QR scanner is working effectively
-        if(uploadRecentEntries(b.text(), endpoint, auth, location, device_id)) {
+        if(uploadRecentEntries(b.text(), endpoint, auth, location, entrance)) {
             app_data->value = 1;
             send_event(app_data);
 
@@ -202,12 +202,12 @@ static gboolean process_frame(AppData* app_data) {
 }
 
 
-static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string device_id) {
+static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string entrance) {
 
     std::string json_body = "{"
-        "\"location\": \"" + location + "\","
-        "\"device_id\": \"" + device_id + "\","
-        "\"data\": \"" + json_data +
+        "\"park_abbr\": \"" + location + "\","
+        "\"entrance\": \"" + entrance + "\","
+        "\"scandata\": \"" + json_data +
     "\"}";
     
     CURL* curl;
@@ -258,7 +258,7 @@ static bool uploadRecentEntries(const std::string& json_data, const std::string&
     return false;
 }
 
-static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& device_id) {
+static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& entrance) {
     GError* error = nullptr;
 
     // Create AXParameter handle
@@ -293,18 +293,18 @@ static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::
         } else {
             syslog(LOG_ERR, "Failed to retrieve LOCATION");
         }
-        if (ax_parameter_get(handle, "DEVICE", &param_value, &error)) {
-            device_id = param_value;
+        if (ax_parameter_get(handle, "ENTRANCE", &param_value, &error)) {
+            entrance = param_value;
             g_free(param_value);
         } else {
-            syslog(LOG_ERR, "Failed to retrieve DEVICE");
+            syslog(LOG_ERR, "Failed to retrieve ENTRANCE");
         }
 
         // Log parameters for debugging
         syslog(LOG_INFO, "Endpoint: %s", endpoint.c_str());
         syslog(LOG_INFO, "Auth: %s", auth.c_str());
         syslog(LOG_INFO, "Location: %s", location.c_str());
-        syslog(LOG_INFO, "Device ID: %s", device_id.c_str());
+        syslog(LOG_INFO, "Entrance: %s", entrance.c_str());
 
         if (error) g_error_free(error); // Free error object
     } catch (const std::exception& ex) {

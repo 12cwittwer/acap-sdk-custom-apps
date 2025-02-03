@@ -14,11 +14,11 @@
       "paramConfig": [
         {
           "name": "ENDPOINT",
-          "default": "https://baa5-144-38-172-173.ngrok-free.app/messages",
+          "default": "https://0d77-144-38-9-14.ngrok-free.app/messages",
           "type": "string"
         },
         {
-          "name": "DEVICE",
+          "name": "ENTRANCE",
           "default": "001",
           "type": "string"
         },
