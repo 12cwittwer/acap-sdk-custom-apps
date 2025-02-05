@@ -49,10 +49,12 @@ static std::string location;
 static std::string entrance;
 static gboolean delay_in_progress = FALSE;
 
-static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string entrance);
+static int uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string entrance);
 static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& entrance);
 static gboolean process_frame(AppData* app_data);
 static gboolean reset_delay_flag(gpointer user_data);
+static void toLowerCase(std::string& str);
+static std::string extractValue(const std::string& json, const std::string& key);
 
 int main(void) {
     GMainLoop* main_loop = NULL;
@@ -182,7 +184,8 @@ static gboolean process_frame(AppData* app_data) {
     for (const auto& b : barcodes) {
         syslog(LOG_INFO, "%s: %s", ZXing::ToString(b.format()).c_str(), b.text().c_str());
         // Uncomment when QR scanner is working effectively
-        if(uploadRecentEntries(b.text(), endpoint, auth, location, entrance)) {
+        int successValue = uploadRecentEntries(b.text(), endpoint, auth, location, entrance);
+        if(successValue == 1) {
             app_data->value = 1;
             send_event(app_data);
 
@@ -201,35 +204,44 @@ static gboolean process_frame(AppData* app_data) {
     return TRUE;
 }
 
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
+    size_t totalSize = size * nmemb;
+    response->append((char*)contents, totalSize);
+    return totalSize;
+}
 
-static bool uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string entrance) {
 
-    std::string json_body = "{"
-        "\"park_abbr\": \"" + location + "\","
-        "\"entrance\": \"" + entrance + "\","
-        "\"scandata\": \"" + json_data +
-    "\"}";
-    
+static int uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string entrance) {
+
+    // Construct the URL with query parameters
+    std::string url = endpoint + "?park_abbr=" + curl_easy_escape(nullptr, location.c_str(), 0) +
+                      "&entrance=" + curl_easy_escape(nullptr, entrance.c_str(), 0) +
+                      "&scandata=" + curl_easy_escape(nullptr, json_data.c_str(), 0);
+
     CURL* curl;
     CURLcode res;
     char error_buffer[CURL_ERROR_SIZE];
+    std::string response;
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
     if (curl) {
         struct curl_slist* headers = NULL;
-        headers = curl_slist_append(headers, "Content-Type: application/json");
 
-        std::string auth_header = "PARKSPLUS_AUTH: " + auth;
-        headers = curl_slist_append(headers, auth_header.c_str());
+    // TODO -- Ensure that we will not have authorization keys
+        // std::string auth_header = "PARKSPLUS_AUTH: " + auth;
+        // headers = curl_slist_append(headers, auth_header.c_str());
 
-        curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());  // Use the URL with params
+        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);       // Use GET instead of POST
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_body.c_str());
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // Follow redirects
-        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);       // Limit the number of redirects to follow
+        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);       // Limit the number of redirects
+
+        // Set up the write function to capture response
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
@@ -238,11 +250,38 @@ static bool uploadRecentEntries(const std::string& json_data, const std::string&
             long http_code = 0;
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
             if (http_code == 200) {
-                syslog(LOG_INFO, "Data uploaded succesfully");
+                int returnValue = 0;
+                std::string result = extractValue(response, "result");
+                std::string message = extractValue(response, "message");
+                toLowerCase(result);
+                toLowerCase(message);
+                if (result == "success" || message == "pass found") {
+                    std::string checkin = extractValue(response, "checkin");
+                    syslog(LOG_INFO, "Result: %s; Message: %s; Check-In: %s", result.c_str(), message.c_str(), checkin.c_str());
+                    returnValue = 1;
+                } else {
+                    syslog(LOG_INFO, "Result: %s; Message: %s", result.c_str(), message.c_str());
+                    if (message == "pass not found") {
+                        syslog(LOG_INFO, "Pass was not found");
+                        returnValue = 2;
+                    } else if (message == "invalid format") {
+                        syslog(LOG_INFO, "QR Code data is not in a recongnizable format");
+                        returnValue = 3;
+                    } else if (message == "checkin failed") {
+                        syslog(LOG_INFO, "Was not able to check the visitor in");
+                        returnValue = 4;
+                    } else if (message == "pass expired") {
+                        syslog(LOG_INFO, "Pass is expired");
+                        returnValue = 5;
+                    } else {
+                        syslog(LOG_INFO, "Unknown pass validation error");
+                        returnValue = 6;
+                    }
+                }
                 curl_slist_free_all(headers);
                 curl_easy_cleanup(curl);
                 curl_global_cleanup();
-                return true;
+                return returnValue;
             } else {
                 syslog(LOG_INFO, "Data was not successfully uploaded");
             }
@@ -257,6 +296,7 @@ static bool uploadRecentEntries(const std::string& json_data, const std::string&
     curl_global_cleanup();
     return false;
 }
+
 
 static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& entrance) {
     GError* error = nullptr;
@@ -321,4 +361,24 @@ static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::
 static gboolean reset_delay_flag(gpointer user_data) {
     delay_in_progress = FALSE;
     return FALSE;
+}
+
+static void toLowerCase(std::string& str) {
+    for (char& c : str) {
+        c = std::tolower(c);
+    }
+}
+
+static std::string extractValue(const std::string& json, const std::string& key) {
+    std::string searchKey = "\"" + key + "\":\""; // Format the key to match JSON format
+    size_t start = json.find(searchKey);
+    
+    if (start == std::string::npos) return ""; // Key not found
+
+    start += searchKey.length(); // Move to the start of the value
+    size_t end = json.find("\"", start); // Find the closing quote
+
+    if (end == std::string::npos) return ""; // Malformed JSON
+
+    return json.substr(start, end - start);
 }

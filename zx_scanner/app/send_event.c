@@ -49,7 +49,6 @@ gboolean send_event(AppData* send_data) {
     key_value_set = ax_event_key_value_set_new();
 
     // Add the variable elements of the event to the set
-    syslog(LOG_INFO, "Add value: %d", send_data->value);
     if (!ax_event_key_value_set_add_key_value(key_value_set,
                                          "SuccessValue",
                                          "tnsaxis",
@@ -73,8 +72,6 @@ gboolean send_event(AppData* send_data) {
     if (!ax_event_handler_send_event(send_data->event_handler, send_data->event_id, event, NULL)) {
         syslog(LOG_ERR, "Failed to send event to handler");
     }
-
-    syslog(LOG_INFO, "Send stateful event with value: %d", send_data->value);
 
     ax_event_free(event);
 

@@ -14,12 +14,12 @@
       "paramConfig": [
         {
           "name": "ENDPOINT",
-          "default": "https://0d77-144-38-9-14.ngrok-free.app/messages",
+          "default": "https://trailwaze.info/parkspass/api/fastPassScan.php",
           "type": "string"
         },
         {
           "name": "ENTRANCE",
-          "default": "001",
+          "default": "1",
           "type": "string"
         },
         {
