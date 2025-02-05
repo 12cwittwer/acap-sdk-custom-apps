@@ -42,9 +42,9 @@ The Parkspass QR Scanner App performs the following functions:
 - **device_id**: List of logged entries in from the Speed Monitor app.
 ```sh
 {
-  "location": "UTSNOW",
-  "data": "https://parkspass.utah.gov/activate/C00000767",
-  "device_id": "001"
+  "location": User defined location of the device,
+  "data": The data retrieved from the scanned QR code,
+  "device_id": The user defined ID of the device
 }
 ```
 
