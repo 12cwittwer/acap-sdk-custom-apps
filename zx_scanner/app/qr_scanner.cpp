@@ -135,16 +135,6 @@ int main(void) {
     return EXIT_SUCCESS;
 }
 
-// Print an error to syslog and exit the application if a fatal error occurs.
-__attribute__((noreturn)) __attribute__((format(printf, 1, 2))) static void
-panic(const char* format, ...) {
-    va_list arg;
-    va_start(arg, format);
-    vsyslog(LOG_ERR, format, arg);
-    va_end(arg);
-    exit(1);
-}
-
 static gboolean process_frame(AppData* app_data) {
     if (delay_in_progress) {
         return TRUE;
