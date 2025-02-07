@@ -50,23 +50,12 @@ static std::string location;
 static std::string entrance;
 static gboolean delay_in_progress = FALSE;
 
-// Structure used for passing data to the monitor_parameters() callback.
-struct message {
-    AXParameter* handle;
-    char* name;
-    char* value;
-};
-
 static int uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string entrance);
 static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& entrance, AXParameter* handle);
 static gboolean process_frame(AppData* app_data);
 static gboolean reset_delay_flag(gpointer user_data);
 static void toLowerCase(std::string& str);
 static std::string extractValue(const std::string& json, const std::string& key);
-static void parameter_changed(const gchar* name, const gchar* value, gpointer handle_void_ptr);
-static void setupActionOnParameterChange(AXParameter* handle, GError* error);
-static gboolean signal_handler(gpointer loop);
-static gboolean monitor_parameters(void* msg_void_ptr);
 
 int main(void) {
     GMainLoop* main_loop = NULL;
@@ -91,8 +80,6 @@ int main(void) {
     if (!retrieveAxParameters(endpoint, auth, location, entrance, handle)) {
         return EXIT_FAILURE;
     }
-
-    setupActionOnParameterChange(handle, error);
 
     // The desired width and height of the BGR frame
     unsigned int width  = 1280;
@@ -137,10 +124,6 @@ int main(void) {
 
     g_timeout_add(100, (GSourceFunc)process_frame, app_data);
     main_loop = g_main_loop_new(NULL, FALSE);
-
-    // Start listening to callbacks by launching a GLib main loop.
-    g_unix_signal_add(SIGTERM, signal_handler, main_loop);
-    g_unix_signal_add(SIGINT, signal_handler, main_loop);
 
     g_main_loop_run(main_loop);
 
@@ -387,64 +370,6 @@ static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::
 
     // Cleanup resources
     return true;
-}
-
-static gboolean signal_handler(gpointer loop) {
-    g_main_loop_quit((GMainLoop*)loop);
-    syslog(LOG_INFO, "Application was stopped by SIGTERM or SIGINT.");
-    return G_SOURCE_REMOVE;
-}
-
-static gboolean monitor_parameters(void* msg_void_ptr) {
-    GError* error       = NULL;
-    struct message* msg = (struct message*)msg_void_ptr;
-    AXParameter* handle = msg->handle;
-    gchar *param_value  = NULL;
-
-    bool has_custom_value_param = ax_parameter_get(handle, msg->name, &param_value, &error);
-
-    if (has_custom_value_param) {
-        if (!ax_parameter_set(handle, msg->name, msg->value, TRUE, &error)) {
-            syslog(LOG_INFO, "Failed to change parameter %s from %s to %s", msg->name, param_value, msg->value);
-        }
-        else {
-            syslog(LOG_INFO, "%s was changed from %s to '%s' one second ago", msg->name, param_value, msg->value);
-        }
-    }
-
-    // Free all memory of the message struct and tell GLib not to make this call again.
-    free(msg->name);
-    free(msg->value);
-    free(msg);
-    return FALSE;
-}
-
-// This function is registered as a callback using ax_parameter_register_callback().
-// It must not call any ax_parameter_* functions, since that would cause a deadlock.
-static void parameter_changed(const gchar* name, const gchar* value, gpointer handle_void_ptr) {
-    const char* name_without_qualifiers = &name[strlen("root." APP_NAME ".")];
-    syslog(LOG_INFO, "%s was changed to '%s' just now", name_without_qualifiers, value);
-
-    // Schedule a call in one second to a function that is allowed to use ax_parameter_* functions.
-    // The strings must be copied, since they are owned by the AXParameter library.
-    // The message struct must be dynamically allocated, since there may be more AXParameter
-    // callback calls before this message reaches its destination.
-
-    struct message* msg = (struct message*)malloc(sizeof(struct message));
-
-    msg->handle = static_cast<AXParameter*>(handle_void_ptr);
-    msg->name   = strdup(name_without_qualifiers);
-    msg->value  = strdup(value);
-
-    g_timeout_add_seconds(1, monitor_parameters, msg);
-}
-
-static void setupActionOnParameterChange(AXParameter* handle, GError* error) {
-    if (!ax_parameter_register_callback(handle, "ENTRANCE", parameter_changed, handle, &error))
-        panic("%s", error->message);
-
-    if (!ax_parameter_register_callback(handle, "LOCATION", parameter_changed, handle, &error))
-        panic("%s", error->message);
 }
 
 static gboolean reset_delay_flag(gpointer user_data) {
