@@ -122,7 +122,7 @@ int main(void) {
     AppData* app_data = create_event();
     syslog(LOG_INFO, "New event created with ID: %d", app_data->event_id);
 
-    g_timeout_add(100, (GSourceFunc)process_frame, app_data);
+    g_timeout_add(10, (GSourceFunc)process_frame, app_data);
     main_loop = g_main_loop_new(NULL, FALSE);
 
     g_main_loop_run(main_loop);
