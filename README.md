@@ -7,7 +7,7 @@ Welcome to the repository for custom apps developed for Axis communication devic
 - [Overview](#overview)
 - [Apps](#apps)
   - [HTTPS Upload](#https-upload-app)
-  - [Parkspass QR Scanner](#parkspass-qr-scanner)
+  - [Parkspass QR Scanner](#parkspass-qr-scanner-app)
 - [License](#license)
 - [Contact](#contact)
 
