@@ -12,7 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+
+
+ Modified by Christian Wittwer
  */
+
+
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
@@ -73,7 +78,7 @@ int main(void) {
         return false;
     }
 
-    // Cleanup handle on exit
+    // Cleanup AXParameter handle on exit
     auto paramCleanup = [&]() { ax_parameter_free(handle); };
 
     // Retrieve the AxParameters from manifest file
@@ -115,18 +120,19 @@ int main(void) {
     bgr_mat  = Mat(streamHeight, streamWidth, CV_8UC3);
     nv12_mat = Mat(streamHeight  * 3 / 2, streamWidth, CV_8UC1);
 
-    // Crop area being scanned
+    // MAT used to crop the area of the images being scanned
     roi = cv::Rect(streamWidth * 1 / 3, streamHeight * 1 / 4, streamWidth * 1 / 3, streamHeight * 1 / 2);
 
     // Set up event
     AppData* app_data = create_event();
     syslog(LOG_INFO, "New event created with ID: %d", app_data->event_id);
 
+    // Setup and start running main loop
     g_timeout_add(10, (GSourceFunc)process_frame, app_data);
     main_loop = g_main_loop_new(NULL, FALSE);
-
     g_main_loop_run(main_loop);
 
+    // Application cleanup
     event_cleanup();
     paramCleanup();
     destroyImgProvider(provider);
@@ -136,6 +142,7 @@ int main(void) {
 }
 
 static gboolean process_frame(AppData* app_data) {
+    // Do not process frame if delay is in progress
     if (delay_in_progress) {
         return TRUE;
     }
@@ -146,21 +153,15 @@ static gboolean process_frame(AppData* app_data) {
         return FALSE;
     }
 
+    // Get the most recent image from buffer
     nv12_mat.data = static_cast<uint8_t*>(vdo_buffer_get_data(buf));
-
-    // imwrite("nv12.png", nv12_mat);
-    // syslog(LOG_INFO, "nv12 image saved to nv12.png");
 
     // Convert the NV12 data to BGR
     cvtColor(nv12_mat, bgr_mat, COLOR_YUV2BGR_NV12, 3);
 
-    // imwrite("bgr_frame.png", bgr_mat);
-    // syslog(LOG_INFO, "BGR image saved to bgr_frame.png");
-
+    // Convert BGR image to greyscale
     cvtColor(bgr_mat, grey_mat, COLOR_BGR2GRAY);
 
-    // imwrite("greyscale_img.png", grey_mat);
-    // syslog(LOG_INFO, "Greyscale image saved to greyscale_img.png");
 
     cv::Mat cropped = grey_mat(roi);
 
@@ -170,40 +171,32 @@ static gboolean process_frame(AppData* app_data) {
 
     cv::Mat result = resized.clone();
 
+
     // Increase black and white contrast
     cv::Mat high_contrast;
     resized.convertTo(high_contrast, -1, 2.5, -200); // Increase contrast
 
     result = high_contrast; // Inserted to allow removal of thresholding. Needs to be cleaned up later.
 
-    // Set all pixels with a brightness greater than 100 to white
-    // Thresholding does not work properly in low light environments
-    // double threshold_value = 100;
-    // for (int y = 0; y < high_contrast.rows; ++y) {
-    //     for (int x = 0; x < high_contrast.cols; ++x) {
-    //         if (high_contrast.at<uchar>(y, x) >= threshold_value) {
-    //             result.at<uchar>(y, x) = 255; // Set pixel to white
-    //         } else if (high_contrast.at<uchar>(y,x) < threshold_value) {
-    //             result.at<uchar>(y,x) = 0; // Set pixel to black
-    //         }
-    //     }
-    // }
+    // imwrite("final_img.png", result);
+    // syslog(LOG_INFO, "Final photo saved to final_img.png");
 
-    imwrite("altered_img.png", result);
-    // syslog(LOG_INFO, "Final photo saved to altered_img.png");
-
+    // Process image with the ZXing library
     auto image = ZXing::ImageView(result.data, result.cols, result.rows, ZXing::ImageFormat::Lum);
-    auto options = ZXing::ReaderOptions().setFormats(ZXing::BarcodeFormat::QRCode);
+    auto options = ZXing::ReaderOptions().setFormats(ZXing::BarcodeFormat::QRCode); // Change to ZXing::BarcodeFormat::Any if you want to scan QRCodes and Barcodes
     auto barcodes = ZXing::ReadBarcodes(image, options);
 
+    // Upload any barcode data to the endpoint
     for (const auto& b : barcodes) {
         syslog(LOG_INFO, "%s: %s", ZXing::ToString(b.format()).c_str(), b.text().c_str());
-        // Uncomment when QR scanner is working effectively
+
         int successValue = uploadRecentEntries(b.text(), endpoint, auth, location, entrance);
         if(successValue == 1) {
             app_data->value = 1;
             send_event(app_data);
 
+            // Turn on delay
+            // Set a timer for turning off the delay flag
             delay_in_progress = TRUE;
             g_timeout_add(3000, reset_delay_flag, NULL);
         } else {
@@ -219,12 +212,13 @@ static gboolean process_frame(AppData* app_data) {
     return TRUE;
 }
 
+// Write callback is called in uploadRecentEntries()
+// Collects the response from the server
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
     size_t totalSize = size * nmemb;
     response->append((char*)contents, totalSize);
     return totalSize;
 }
-
 
 static int uploadRecentEntries(const std::string& json_data, const std::string& endpoint, const std::string& auth, const std::string location, const std::string entrance) {
 
@@ -233,6 +227,7 @@ static int uploadRecentEntries(const std::string& json_data, const std::string& 
                       "&entrance=" + curl_easy_escape(nullptr, entrance.c_str(), 0) +
                       "&scandata=" + curl_easy_escape(nullptr, json_data.c_str(), 0);
 
+    // initialize CURL and curl buffer
     CURL* curl;
     CURLcode res;
     char error_buffer[CURL_ERROR_SIZE];
@@ -243,12 +238,12 @@ static int uploadRecentEntries(const std::string& json_data, const std::string& 
     if (curl) {
         struct curl_slist* headers = NULL;
 
-    // TODO -- Ensure that we will not have authorization keys
+    // In the case that we add Authorization Headers
         // std::string auth_header = "PARKSPLUS_AUTH: " + auth;
         // headers = curl_slist_append(headers, auth_header.c_str());
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());  // Use the URL with params
-        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);       // Use GET instead of POST
+        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L)
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // Follow redirects
@@ -258,10 +253,12 @@ static int uploadRecentEntries(const std::string& json_data, const std::string& 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
+        // Check the response from the server
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             syslog(LOG_INFO, "curl_easy_perform() failed");
         } else {
+            // Get http server response code
             long http_code = 0;
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
             if (http_code == 200) {
@@ -312,7 +309,7 @@ static int uploadRecentEntries(const std::string& json_data, const std::string& 
     return false;
 }
 
-
+// Collect the parameters defined in the manifest.json file of the application
 static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::string& location, std::string& entrance, AXParameter* handle) {
     GError* error = nullptr;
 
@@ -357,11 +354,10 @@ static bool retrieveAxParameters(std::string& endpoint, std::string& auth, std::
         if (error) g_error_free(error); // Free error object
         return false;
     }
-
-    // Cleanup resources
     return true;
 }
 
+// Turn off delay, allowing passes to be scanned again
 static gboolean reset_delay_flag(gpointer user_data) {
     delay_in_progress = FALSE;
     return FALSE;
@@ -373,16 +369,22 @@ static void toLowerCase(std::string& str) {
     }
 }
 
+// Extract values from the json data returned by the server
 static std::string extractValue(const std::string& json, const std::string& key) {
-    std::string searchKey = "\"" + key + "\":\""; // Format the key to match JSON format
+    // Format the key to match JSON format
+    std::string searchKey = "\"" + key + "\":\""; 
     size_t start = json.find(searchKey);
-    
-    if (start == std::string::npos) return ""; // Key not found
 
-    start += searchKey.length(); // Move to the start of the value
-    size_t end = json.find("\"", start); // Find the closing quote
+    // Key not found
+    if (start == std::string::npos) return ""; 
 
-    if (end == std::string::npos) return ""; // Malformed JSON
+    // Move to the start of the value
+    start += searchKey.length(); 
+    // Find the closing quote
+    size_t end = json.find("\"", start); 
+
+    // Malformed JSON
+    if (end == std::string::npos) return ""; 
 
     return json.substr(start, end - start);
 }
