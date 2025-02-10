@@ -7,7 +7,7 @@ Welcome to the repository for custom apps developed for Axis communication devic
 - [Overview](#overview)
 - [Apps](#apps)
   - [HTTPS Upload](#https-upload-app)
-  - [Parkspass QR Scanner](#parkspass-qr-scanner)
+  - [Parkspass QR Scanner](#parkspass-qr-scanner-app)
 - [License](#license)
 - [Contact](#contact)
 
@@ -27,7 +27,7 @@ This repository aims to provide custom applications designed to enhance the func
 
 ### [Parkspass QR Scanner App](https://github.com/12cwittwer/acap-sdk-custom-apps/tree/main/zx_scanner)
 
-- Repeatedly checks frame from a camera for QR Codes.
+- Repeatedly checks frames from a camera for QR Codes.
 - Upon successfull scan:
     - QR code data is uploaded to an endpoint.
     - An AXEvent is sent.
