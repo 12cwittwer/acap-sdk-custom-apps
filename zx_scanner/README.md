@@ -201,6 +201,9 @@ Application log can be found directly at:
 ```sh
 http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=parkspass_qr_scanner
 ```
+
+Alternatively, application logs can be found by going to the `Apps` section of the device's web interface, clicking on the three dots on the right side of this application, then clicking `App Log`.
+
 ## Event
   This application takes advantage of the built in AXEvent API. Upon each successfull scan of a QR Code, the application will send an event with a SuccessValue field. Only 200 responses are accepted. SuccessValue will have different integer values based on the server response messages:
 
