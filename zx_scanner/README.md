@@ -15,6 +15,7 @@ Working alongside this README file, you should be able to find a directory calle
       - [Accessing Device Web Interface](#steps-to-access-the-web-interface)
       - [Checking Output](#checking-output)
 - [Event](#event)
+- [Defining Parameters](#defining-parameters)
 
 ## Description
 
@@ -41,8 +42,8 @@ The Parkspass QR Scanner App performs the following functions:
    - The app, after being installed and activated, should start up if the device reboots.
 
 ## Uploaded Data
-- **park_abbr**: User defined park abbreviation.
-- **entrance**: User defined entrance of the park.
+- **park_abbr**: Parameter defined park abbreviation.
+- **entrance**: Parameter defined defined entrance of the park.
 - **scandata**: The data contained in the QR Code.
 ```sh
     <endpoint_url>?park_abbr=<Given_Park>&entrance=<Given_Entrance>&scandata=<QR_Code_Data>
@@ -215,3 +216,34 @@ http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=parkspass_qr_scanne
   - Under `Rules` click `+ Add Rule`.
 
   - In the `Condition` section, click `Select a Condition` and choose `BarcodeScanned`.
+
+## Defining Parameters
+  !!! This application currently does not support changing the parameters of the application on the Axis Communications device !!!
+
+  Varaibles must be changed before building the applicaiton:
+
+  - In the **zx_scanner** directory, go to the **app** directory
+
+  - Open the **manifest.json** in your preferred text editor
+
+  - Parameters can be changed by editing the 'default' field
+
+```
+      "paramConfig": [
+        {
+          "name": "ENDPOINT",
+          "default": "https://trailwaze.info/parkspass/api/fastPassScan.php",
+          "type": "string"
+        },
+        {
+          "name": "ENTRANCE",
+          "default": "1",
+          "type": "string"
+        },
+        {
+          "name": "LOCATION",
+          "default": "UTSNOW",
+          "type": "string"
+        }
+      ]
+```
