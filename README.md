@@ -13,9 +13,7 @@ Welcome to the repository for custom apps developed for Axis communication devic
 
 ## Overview
 
-This repository aims to provide custom applications designed to enhance the functionality of Axis communication devices. These apps address niche requirements that cater specifically to the operations of Parkspass. The current offering includes:
-
-- **HTTPS Upload App**: Sends data collected by the Speed Monitor App to a specified HTTPS endpoint.
+This repository aims to provide custom applications designed to enhance the functionality of Axis communication devices. These apps address niche requirements that cater specifically to the operations of Parkspass.
 
 ## Apps
 
