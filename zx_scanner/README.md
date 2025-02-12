@@ -166,7 +166,9 @@ The working dir now contains a build folder with the following files:
 
 1. **Find the IP Address of the Device**:
 
-   - You can use the Axis IP Utility or Axis Camera Management tool to find the IP address of your device. Alternatively, you can check your router's DHCP client list. If you are accessing your Axis device direclty through ethernet, the default IP address of most Axis Communications devices is 192.168.0.90.
+   - You can use the Axis IP Utility or Axis Camera Management tool to find the IP address of your device.
+   - Alternatively, you can check your router's DHCP client list.
+   - If you are accessing your Axis device direclty through ethernet, the default IP address of most Axis Communications devices is 192.168.0.90.
 
 2. **Open a Web Browser**:
 
