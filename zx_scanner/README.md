@@ -227,11 +227,11 @@ Alternatively, application logs can be found by going to the `Apps` section of t
 
   Varaibles must be changed before building the applicaiton:
 
-  - In the **zx_scanner** directory, go to the **app** directory
+  - In the `zx_scanner` directory, go to the `app` directory
 
-  - Open the **manifest.json** in your preferred text editor
+  - Open the `manifest.json` in your preferred text editor
 
-  - Parameters can be changed by editing the 'default' field
+  - Parameters can be changed by editing the **default** field
 
 ```
       "paramConfig": [
