@@ -1,8 +1,8 @@
 # Parkspass QR Scanner App
 
-This README file explains how to build a the Parkspass QR Scanner [ACAP SDK App](https://axiscommunications.github.io/acap-documentation/) and install it on your Axis Communications device.
+This README file explains how to build the Parkspass QR Scanner [ACAP SDK App](https://axiscommunications.github.io/acap-documentation/) and install it on your Axis Communications device.
 
-Together with this README file, you should be able to find a directory called app. That directory contains the application source code which can easily be compiled and run with the help of the tools and step by step below.
+Working alongside this README file, you should be able to find a directory called app. That directory contains the application source code which can easily be compiled and run with the help of the tools and step by step below.
 
 ## Table of Contents
 - [Description](#description)
@@ -21,36 +21,33 @@ Together with this README file, you should be able to find a directory called ap
 The Parkspass QR Scanner App performs the following functions:
 
 1. **Scans QR Codes**:
-   - The app using the [ZXing-C++](https://github.com/zxing-cpp/zxing-cpp) barcode scanner library to detect and decode QR codes.
+   - The app uses the [ZXing-C++](https://github.com/zxing-cpp/zxing-cpp) barcode scanner library to detect and decode QR codes.
+   - After a successful scan, scanning is delayed for a few seconds.
 
 2. **Data Upload**:
    - The app collects the data decoded from the QR Code and sends it to an Endpoint variable.
    - Data is uploaded upon each successfull scan.
-   - After a successful scan, scanning is delayed for a few seconds.
 
 3. **Send Event**:
-   - The app sends an event with the AXEvent API.
-   - Event can be subscribed to under the name BarcodeScanned.
-   - SuccessValue is sent based on server response.
+   - The app sends an event using the AXEvent API.
+   - Event can be subscribed to on the Axis device web interface under the name BarcodeScanned.
+   - A variable, SuccessValue, is sent based on server response as part of the event.
 
 4. **Continuous Operation**:
    - The app runs on a loop, continually checking frames for a QR Code.
+   - The app, after being installed and activated, should start up if the device reboots.
 
 ## Uploaded Data
-- **location**: User given ID of the Axis device.
-- **data**: Data from the QR Code scanned
-- **device_id**: List of logged entries in from the Speed Monitor app.
+- **park_abbr**: User defined park abbreviation.
+- **entrance**: User defined entrance of the park.
+- **scandata**: The data contained in the QR Code.
 ```sh
-{
-  "location": User defined location of the device,
-  "data": The data retrieved from the scanned QR code,
-  "device_id": The user defined ID of the device
-}
+    <endpoint_url>?park_abbr=<Given Park>&entrance=<Given Entrance>&scandata=<QR Code Data>
 ```
 
 ## Getting started
 
-These instructions will guide you on how to execute the code. Below is the structure and scripts used in the app:
+These instructions will guide you on how to build and install the app. Below is the structure and the scripts used in the app:
 
 ```sh
 https-upload
@@ -157,7 +154,7 @@ The working dir now contains a build folder with the following files:
 └── send_event.o
 ```
 
-- **build/Parkspass_QR_Scanner_1_0_0_aarch64.eap** - Application package .eap file. Uploaded to the Axis device to install application.
+- **build/Parkspass_QR_Scanner_1_0_0_aarch64.eap** - Application package .eap file. This is the file we will upload to the Axis device to install the app.
 
 #### Install your application
 
@@ -165,7 +162,7 @@ The working dir now contains a build folder with the following files:
 
 1. **Find the IP Address of the Device**:
 
-   - You can use the Axis IP Utility or Axis Camera Management tool to find the IP address of your device. Alternatively, you can check your router's DHCP client list.
+   - You can use the Axis IP Utility or Axis Camera Management tool to find the IP address of your device. Alternatively, you can check your router's DHCP client list. If you are accessing your Axis device direclty through ethernet, the default IP address of most Axis Communications devices is 192.168.0.90.
 
 2. **Open a Web Browser**:
 
@@ -201,7 +198,7 @@ Application log can be found directly at:
 http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=parkspass_qr_scanner
 ```
 ## Event
-  This application takes advantage of the built in AXEvent API. Upon each successfull scan of an QR Code, the application will send an event with a SuccessValue field. Only 200 responses are read. SuccessValue will have different integer values based on the server response messages:
+  This application takes advantage of the built in AXEvent API. Upon each successfull scan of a QR Code, the application will send an event with a SuccessValue field. Only 200 responses are accepted. SuccessValue will have different integer values based on the server response messages:
 
   - 1: "pass found"
   
