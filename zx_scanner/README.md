@@ -20,20 +20,23 @@ Working alongside this README file, you should be able to find a directory calle
 
 The Parkspass QR Scanner App performs the following functions:
 
-1. **Scans QR Codes**:
+1. **Image Altering**:
+   - Images are altered using [OpenCV](https://opencv.org/) before being scanned for QR codes.
+
+2. **Scans QR Codes**:
    - The app uses the [ZXing-C++](https://github.com/zxing-cpp/zxing-cpp) barcode scanner library to detect and decode QR codes.
    - After a successful scan, scanning is delayed for a few seconds.
 
-2. **Data Upload**:
+3. **Data Upload**:
    - The app collects the data decoded from the QR Code and sends it to an Endpoint variable.
    - Data is uploaded upon each successfull scan.
 
-3. **Send Event**:
+4. **Send Event**:
    - The app sends an event using the AXEvent API.
    - Event can be subscribed to on the Axis device web interface under the name BarcodeScanned.
    - A variable, SuccessValue, is sent based on server response as part of the event.
 
-4. **Continuous Operation**:
+5. **Continuous Operation**:
    - The app runs on a loop, continually checking frames for a QR Code.
    - The app, after being installed and activated, should start up if the device reboots.
 
