@@ -45,7 +45,7 @@ The Parkspass QR Scanner App performs the following functions:
 - **entrance**: User defined entrance of the park.
 - **scandata**: The data contained in the QR Code.
 ```sh
-    <endpoint_url>?park_abbr=<Given Park>&entrance=<Given Entrance>&scandata=<QR Code Data>
+    <endpoint_url>?park_abbr=<Given_Park>&entrance=<Given_Entrance>&scandata=<QR_Code_Data>
 ```
 
 ## Getting started
