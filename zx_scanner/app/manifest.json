@@ -30,7 +30,7 @@
         {
           "name": "AUTH",
           "default": "PARKSPLUS",
-          "type": "string"
+          "type": "hidden:string"
         }
       ]
     }
