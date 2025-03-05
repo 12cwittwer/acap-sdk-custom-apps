@@ -222,10 +222,9 @@ Alternatively, application logs can be found by going to the `Apps` section of t
 
   - In the `Condition` section, click `Select a Condition` and choose `BarcodeScanned`.
 
-## Defining Parameters
-  !!! This application currently does not support changing the parameters of the application on the Axis Communications device !!!
+## Defining Parameter
 
-  Varaibles must be changed before building the applicaiton:
+  Varaibles may be changed before building the applicaiton:
 
   - In the `zx_scanner` directory, go to the `app` directory
 
@@ -252,3 +251,16 @@ Alternatively, application logs can be found by going to the `Apps` section of t
         }
       ]
 ```
+
+Variables may also be changed using the device web interface:
+
+  - Go to the `Apps` tab on the left side
+
+  - Click the three dots next to the `Parkspass QR Scanner App`
+
+  - Click `Settings`
+
+  - Adjust the settings as desired. Click `Save` when finished
+
+
+For more information on viewing and changing Axis Parameters, visit [VAPIX API: Parameter Mangement](https://developer.axis.com/vapix/network-video/parameter-management/)
