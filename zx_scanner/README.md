@@ -201,7 +201,7 @@ the newly built **httpsUpload_1_0_1_aarch64.eap** > Click **Install** > Run the 
 Application log can be found directly at:
 
 ```sh
-http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=parkspass_qr_scanner
+http://<axis_device_ip>/axis-cgi/admin/systemlog.cgi?appname=ParkspassQRScanner
 ```
 
 Alternatively, application logs can be found by going to the `Apps` section of the device's web interface, clicking on the three dots on the right side of this application, then clicking `App Log`.
