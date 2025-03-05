@@ -3,7 +3,7 @@
   "acapPackageConf": {
     "setup": {
       "friendlyName": "Parkspass QR Scanner",
-      "appName": "parkspass_qr_scanner",
+      "appName": "ParkspassQRScanner",
       "vendor": "Axis Communications",
       "embeddedSdkVersion": "3.0",
       "vendorUrl": "https://www.axis.com",

@@ -38,7 +38,7 @@
 #include "send_event.h"
 #include "imgprovider.h"
 
-#define APP_NAME "parkspass_qr_scanner"
+#define APP_NAME "ParkspassQRScanner"
 
 using namespace cv;
 
@@ -171,15 +171,13 @@ static gboolean process_frame(AppData* app_data) {
 
     cv::Mat result = resized.clone();
 
+    // cv::GaussianBlur(resized, resized, cv::Size(5, 5), 1.4);
 
     // Increase black and white contrast
     cv::Mat high_contrast;
     resized.convertTo(high_contrast, -1, 2.5, -200); // Increase contrast
 
     result = high_contrast; // Inserted to allow removal of thresholding. Needs to be cleaned up later.
-
-    // imwrite("final_img.png", result);
-    // syslog(LOG_INFO, "Final photo saved to final_img.png");
 
     // Process image with the ZXing library
     auto image = ZXing::ImageView(result.data, result.cols, result.rows, ZXing::ImageFormat::Lum);
@@ -194,6 +192,9 @@ static gboolean process_frame(AppData* app_data) {
         if(successValue == 1) {
             app_data->value = 1;
             send_event(app_data);
+
+            // imwrite("final_img.png", result);
+            // syslog(LOG_INFO, "Final photo saved to final_img.png");
 
             // Turn on delay
             // Set a timer for turning off the delay flag
@@ -243,7 +244,7 @@ static int uploadRecentEntries(const std::string& json_data, const std::string& 
         // headers = curl_slist_append(headers, auth_header.c_str());
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());  // Use the URL with params
-        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L)
+        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // Follow redirects

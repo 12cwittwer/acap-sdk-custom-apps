@@ -94,6 +94,7 @@ gboolean send_event(AppData* send_data) {
 static void declaration_complete(guint declaration, gint* value) {
     syslog(LOG_INFO, "Declaration complete for: %d", declaration);
 
+    (void)value;
     // app_data->value = *value;
 
     // Set up a timer to be called every 10th second
@@ -121,7 +122,7 @@ static void declaration_complete(guint declaration, gint* value) {
  * param event_handler Event handler.
  * return declaration id as integer.
  */
-static guint setup_declaration(AXEventHandler* event_handler, gint* start_value) {
+static guint setup_declaration(AXEventHandler* event_handler, guint* start_value) {
     AXEventKeyValueSet* key_value_set = NULL;
     guint declaration                 = 0;
     guint token                       = 0;
@@ -214,7 +215,7 @@ AppData* create_event(void) {
         return NULL;
     }
     syslog(LOG_INFO, "Event handler created at: %p", app_data->event_handler);
-    app_data->event_id      = setup_declaration(app_data->event_handler, &start_value);
+    app_data->event_id = setup_declaration(app_data->event_handler, &start_value);
     if (!app_data->event_id) {
         syslog(LOG_ERR, "New Event Failed to Create");
         event_cleanup();
