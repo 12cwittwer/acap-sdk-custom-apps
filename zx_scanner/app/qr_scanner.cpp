@@ -45,10 +45,8 @@ using namespace cv;
 static AXEventHandler* event_handler = nullptr;
 static guint qr_event_id = 0;
 static ImgProvider_t* provider = nullptr;
-static Mat bgr_mat;
-static Mat nv12_mat;
-static Mat grey_mat;
-static cv::Rect roi;
+static unsigned int streamWidth;
+static unsigned int streamHeight;
 static std::string endpoint;
 static std::string auth;
 static std::string location;
@@ -92,8 +90,8 @@ int main(void) {
 
     // chooseStreamResolution gets the least resource intensive stream
     // that exceeds or equals the desired resolution specified above
-    unsigned int streamWidth  = 0;
-    unsigned int streamHeight = 0;
+    streamWidth  = 0;
+    streamHeight = 0;
     if (!chooseStreamResolution(width, height, &streamWidth, &streamHeight)) {
         syslog(LOG_ERR, "%s: Failed choosing stream resolution", __func__);
         exit(1);
@@ -114,14 +112,6 @@ int main(void) {
         syslog(LOG_ERR, "%s: Failed to fetch frames from VDO", __func__);
         exit(3);
     }
-
-    // Create OpenCV Mats for the camera frame (nv12), the converted frame (bgr)
-    // and the foreground frame that is outputted by the background subtractor
-    bgr_mat  = Mat(streamHeight, streamWidth, CV_8UC3);
-    nv12_mat = Mat(streamHeight  * 3 / 2, streamWidth, CV_8UC1);
-
-    // MAT used to crop the area of the images being scanned
-    roi = cv::Rect(streamWidth * 1 / 3, streamHeight * 1 / 4, streamWidth * 1 / 3, streamHeight * 1 / 2);
 
     // Set up event
     AppData* app_data = create_event();
@@ -153,35 +143,56 @@ static gboolean process_frame(AppData* app_data) {
         return FALSE;
     }
 
-    // Get the most recent image from buffer
+    // Extract raw NV12 image data
+    Mat nv12_mat;
+    nv12_mat = Mat(streamHeight  * 3 / 2, streamWidth, CV_8UC1);
     nv12_mat.data = static_cast<uint8_t*>(vdo_buffer_get_data(buf));
 
-    // Convert the NV12 data to BGR
+    // Convert NV12 to BGR
+    Mat bgr_mat;
+    bgr_mat  = Mat(streamHeight, streamWidth, CV_8UC3);
     cvtColor(nv12_mat, bgr_mat, COLOR_YUV2BGR_NV12, 3);
 
-    // Convert BGR image to greyscale
+    // Convert BGR to grayscale
+    Mat grey_mat;
     cvtColor(bgr_mat, grey_mat, COLOR_BGR2GRAY);
 
-
+    // Crop to the region of interest (ROI) for QR detection
+    cv::Rect roi;
+    roi = cv::Rect(streamWidth * 3 / 8, streamHeight * 3 / 8, streamWidth * 2 / 8, streamHeight * 2 / 8);
     cv::Mat cropped = grey_mat(roi);
 
-    // Resize the cropped image to enhance resolution
+    // Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
+    cv::Mat clahe_result;
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(2.0, cv::Size(8,8));
+    clahe->apply(cropped, clahe_result);
+
+    // Resize the cropped image for better resolution
     cv::Mat resized;
-    cv::resize(cropped, resized, cv::Size(), 2.0, 2.0, cv::INTER_CUBIC); // 2x enlargement
+    cv::resize(clahe_result, resized, cv::Size(), 2.0, 2.0, cv::INTER_CUBIC);  // 2x enlargement
 
-    cv::Mat result = resized.clone();
+    // Noise reduction (using median filter)
+    cv::Mat denoised;
+    cv::medianBlur(resized, denoised, 3);  // 3x3 kernel
 
-    // cv::GaussianBlur(resized, resized, cv::Size(5, 5), 1.4);
+    // Sharpening using Unsharp Mask
+    cv::Mat blurred, sharpened;
+    GaussianBlur(denoised, blurred, cv::Size(3, 3), 0);
+    cv::addWeighted(denoised, 1.5, blurred, -0.5, 0, sharpened);
 
-    // Increase black and white contrast
-    cv::Mat high_contrast;
-    resized.convertTo(high_contrast, -1, 2.5, -200); // Increase contrast
+    // Adaptive thresholding (better for varying lighting)
+    cv::Mat binary;
+    cv::adaptiveThreshold(sharpened, binary, 255, 
+                        cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 25, 2);
 
-    result = high_contrast; // Inserted to allow removal of thresholding. Needs to be cleaned up later.
+    // Optional Morphological Closing (removes gaps in QR patterns)
+    cv::Mat morph;
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    cv::morphologyEx(binary, morph, cv::MORPH_CLOSE, kernel);
 
-    // Process image with the ZXing library
-    auto image = ZXing::ImageView(result.data, result.cols, result.rows, ZXing::ImageFormat::Lum);
-    auto options = ZXing::ReaderOptions().setFormats(ZXing::BarcodeFormat::QRCode); // Change to ZXing::BarcodeFormat::Any if you want to scan QRCodes and Barcodes
+    // Use the processed image for ZXing QR detection
+    auto image = ZXing::ImageView(morph.data, morph.cols, morph.rows, ZXing::ImageFormat::Lum);
+    auto options = ZXing::ReaderOptions().setFormats(ZXing::BarcodeFormat::QRCode);
     auto barcodes = ZXing::ReadBarcodes(image, options);
 
     // Upload any barcode data to the endpoint
@@ -189,12 +200,14 @@ static gboolean process_frame(AppData* app_data) {
         syslog(LOG_INFO, "%s: %s", ZXing::ToString(b.format()).c_str(), b.text().c_str());
 
         int successValue = uploadRecentEntries(b.text(), endpoint, auth, location, entrance);
+
+        // imwrite("final_img.png", morph);
+        // syslog(LOG_INFO, "Final photo saved to final_img.png");
+
         if(successValue == 1) {
             app_data->value = 1;
             send_event(app_data);
 
-            // imwrite("final_img.png", result);
-            // syslog(LOG_INFO, "Final photo saved to final_img.png");
 
             // Turn on delay
             // Set a timer for turning off the delay flag
